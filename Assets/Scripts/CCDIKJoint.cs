@@ -30,7 +30,7 @@ public class CCDIKJoint : MonoBehaviour {
     transform.rotation = Quaternion.FromToRotation(transform.rotation * axis, transform.parent.rotation * axis) * transform.rotation;
     
     //Enforce Joint Limits
-    transform.rotation = Quaternion.FromToRotation(transform.rotation * perpendicular, ConstrainToNormal(transform.rotation * perpendicular, transform.parent.rotation * perpendicular, maxAngle)) * transform.rotation;
+    // transform.rotation = Quaternion.FromToRotation(transform.rotation * perpendicular, ConstrainToNormal(transform.rotation * perpendicular, transform.parent.rotation * perpendicular, maxAngle)) * transform.rotation;
 
     // Align the rotation with the original orientation of the joint
     transform.rotation = transform.rotation * Quaternion.Euler(originalRotation);
