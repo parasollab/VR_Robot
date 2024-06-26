@@ -43,14 +43,25 @@ public class ProcessUrdf : MonoBehaviour
         {
             Destroy(articulationBody); 
 
-            XRKnobTest knob = obj.AddComponent<XRKnobTest>();  
-
+            XRKnobTest knob = obj.AddComponent<XRKnobTest>();
             knob.handle = obj.transform;
 
-            // Assuming XRKnobTest has a public list or method to set colliders
-            foreach (var meshCollider in obj.GetComponents<MeshCollider>())
+            knob.interactionManager = FindObjectOfType<XRInteractionManager>();
+            if (knob.interactionManager != null)
             {
-                knob.colliders.Add(meshCollider);  // You need to implement this method in XRKnobTest
+
+                knob.interactionManager.UnregisterInteractable(knob);
+
+                foreach (var meshCollider in obj.GetComponents<MeshCollider>()) // LEMBRAR DE PEGAR COLLIDERS FILHOS DO COMPONENTE COLLIDERS  DO OBJETO ATUAL!!!
+                {
+                    if (knob.colliders.Contains(meshCollider) == false)
+                    {
+                        knob.colliders.Add(meshCollider);
+                    }
+                }
+
+
+                knob.interactionManager.RegisterInteractable(knob);
             }
         }
     }
