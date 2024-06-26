@@ -61,7 +61,7 @@
       "source": "builtin",
       "dependencies": {
         "com.unity.xr.oculus": "4.2.0",
-        "com.unity.xr.openxr": "1.10.0"
+        "com.unity.xr.openxr": "1.11.0"
       }
     },
     "com.unity.ide.rider": {
@@ -302,7 +302,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.openxr": {
-      "version": "1.10.0",
+      "version": "1.11.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
