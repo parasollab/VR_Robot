@@ -51,23 +51,19 @@ public class ProcessUrdf : MonoBehaviour
             XRKnobTest knob = obj.AddComponent<XRKnobTest>();
             knob.handle = obj.transform;
 
-            knob.interactionManager = FindObjectOfType<XRInteractionManager>();
-            if (knob.interactionManager != null)
+            MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
+            if (meshCollider == null)
             {
-
-                knob.interactionManager.UnregisterInteractable(knob);
-
-                foreach (var meshCollider in obj.GetComponents<MeshCollider>()) // LEMBRAR DE PEGAR COLLIDERS FILHOS DO COMPONENTE COLLIDERS  DO OBJETO ATUAL!!!
-                {
-                    if (knob.colliders.Contains(meshCollider) == false)
-                    {
-                        knob.colliders.Add(meshCollider);
-                    }
-                }
-
-
-                knob.interactionManager.RegisterInteractable(knob);
+                // If no MeshCollider found on the object, search its children
+                meshCollider = obj.GetComponentInChildren<MeshCollider>();
             }
+
+    
+            knob.colliders.Add(meshCollider);
+
+
+            knob.interactionManager.RegisterInteractable(knob);
+            // }
         }
     }
 
