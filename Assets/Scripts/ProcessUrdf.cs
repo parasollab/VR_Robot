@@ -35,13 +35,18 @@ public class ProcessUrdf : MonoBehaviour
         var scripts = new List<MonoBehaviour>(obj.GetComponents<MonoBehaviour>());
         foreach (var script in scripts)
         {
-            Destroy(script); 
+            DestroyImmediate(script); 
         }
 
         var articulationBody = obj.GetComponent<ArticulationBody>();
         if (articulationBody != null)
         {
-            Destroy(articulationBody); 
+            DestroyImmediate(articulationBody); 
+
+            // add rigidbody
+            var rb = obj.AddComponent<Rigidbody>();
+            rb.mass = 1.0f;
+            rb.useGravity = false;
 
             XRKnobTest knob = obj.AddComponent<XRKnobTest>();
             knob.handle = obj.transform;
