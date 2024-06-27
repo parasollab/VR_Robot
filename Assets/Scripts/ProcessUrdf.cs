@@ -57,12 +57,19 @@ public class ProcessUrdf : MonoBehaviour
                 // If no MeshCollider found on the object, search its children
                 meshCollider = obj.GetComponentInChildren<MeshCollider>();
             }
+        
 
-    
-            knob.colliders.Add(meshCollider);
+            knob.colliders.Clear();
+            if (meshCollider != null)
+            {
+                Debug.Log("Object: " + obj.name);
+                Debug.Log("MeshCollider: " + meshCollider.gameObject.name);
+                knob.colliders.Add(meshCollider);
+            }
+            
 
 
-            knob.interactionManager.RegisterInteractable(knob);
+            // knob.interactionManager.RegisterInteractable(knob);
             // }
         }
     }
