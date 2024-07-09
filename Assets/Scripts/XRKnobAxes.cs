@@ -100,10 +100,6 @@ namespace Unity.VRTemplate
         Vector3 originalRotation = new Vector3(0.0f,0.0f,0.0f); //initialize 0 vector
 
         [SerializeField]
-        [Tooltip("The parent joint")]
-        XRKnobAxes parent;
-
-        [SerializeField]
         [Tooltip("The value of the knob")]
         [Range(0.0f, 1.0f)]
         float m_Value = 0.5f;
@@ -114,11 +110,11 @@ namespace Unity.VRTemplate
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '1'")]
-        float m_MaxAngle = 360f;
+        float m_MaxAngle = 180f;
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '0'")]
-        float m_MinAngle = 0f;
+        float m_MinAngle = -180f;
 
         [SerializeField]
         [Tooltip("Angle increments to support, if greater than '0'")]
@@ -386,10 +382,6 @@ namespace Unity.VRTemplate
                     rotationVector = new Vector3(angle, 0.0f, 0.0f);
                 rotationVector += originalRotation;
 
-                if (parent != null) {
-                    rotationVector += parent.m_Handle.localEulerAngles; 
-                }
-                
                 m_Handle.localEulerAngles = rotationVector;
             }
         }
