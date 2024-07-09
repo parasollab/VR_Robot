@@ -2,15 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
-// using UnityEngine.XR.Interaction.Toolkit.Interactables;
-// using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace Unity.VRTemplate
 {
     /// <summary>
     /// An interactable knob that follows the rotation of the interactor
     /// </summary>
-    public class XRKnobTest : XRBaseInteractable
+    public class XRKnobAxes : XRBaseInteractable
     {
         const float k_ModeSwitchDeadZone = 0.1f; // Prevents rapid switching between the different rotation tracking modes
 
@@ -91,11 +89,13 @@ namespace Unity.VRTemplate
 
         [SerializeField]
         [Tooltip("The object that is visually grabbed and manipulated")]
-        public Transform m_Handle = null;
+        Transform m_Handle = null;
 
-        [SerializeField]
         [Tooltip("The axis of rotation")]
-        public Vector3 rotation_axis = new Vector3(0.0f,0.0f,0.0f); //initialize 0 vector
+        public Vector3 rotationAxis = new Vector3(0.0f,0.0f,0.0f); //initialize 0 vector
+
+        [Tooltip("The original orientation")]
+        public Vector3 originalRotation = new Vector3(0.0f,0.0f,0.0f); //initialize 0 vector
 
         [SerializeField]
         [Tooltip("The value of the knob")]
@@ -108,11 +108,11 @@ namespace Unity.VRTemplate
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '1'")]
-        float m_MaxAngle = 90.0f;
+        float m_MaxAngle = 360f;
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '0'")]
-        float m_MinAngle = -90.0f;
+        float m_MinAngle = 0f;
 
         [SerializeField]
         [Tooltip("Angle increments to support, if greater than '0'")]
@@ -242,9 +242,9 @@ namespace Unity.VRTemplate
         {   
 
             float angle = rotation.y; // VOLTAR AQUI
-            if(rotation_axis.x > 0.0f)
+            if(rotationAxis.x > 0.0f)
                 angle = rotation.x;
-            else if(rotation_axis.z > 0.0f)
+            else if(rotationAxis.z > 0.0f)
                 angle = rotation.z;
             else
                 angle = rotation.y;
@@ -372,13 +372,13 @@ namespace Unity.VRTemplate
             if (m_Handle != null)
             {
                 Vector3 rotationVector = Vector3.zero;
-                if (rotation_axis.y > 0.0f)
+                if (rotationAxis.y > 0.0f)
                     rotationVector = new Vector3(0.0f, angle, 0.0f);
-                else if (rotation_axis.z > 0.0f)
+                else if (rotationAxis.z > 0.0f)
                     rotationVector = new Vector3(0.0f, 0.0f, angle);
                 else
                     rotationVector = new Vector3(angle, 0.0f, 0.0f);
-                
+                rotationVector += originalRotation;
                 m_Handle.localEulerAngles = rotationVector;
             }
         }

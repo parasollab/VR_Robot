@@ -47,9 +47,21 @@ public class ProcessUrdf : MonoBehaviour
             var rb = obj.AddComponent<Rigidbody>();
             rb.mass = 1.0f;
             rb.useGravity = false;
+            rb.isKinematic = true;
 
-            XRKnobTest knob = obj.AddComponent<XRKnobTest>();
-            knob.handle = obj.transform;
+            Vector3 originalRotation = obj.transform.localEulerAngles;
+            Vector3 originalPosition = obj.transform.localPosition;
+            Debug.Log("Object: " + obj.name + "Original Rotation: " + originalRotation);
+
+
+            XRKnobAxes knob = obj.AddComponent<XRKnobAxes>();
+            knob.rotationAxis.x = 1.0f;
+            knob.originalRotation = originalRotation;
+            // knob.handle = obj.transform;
+            // set child position
+            obj.transform.localPosition = originalPosition;
+
+            
 
             MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
             if (meshCollider == null)
@@ -68,7 +80,7 @@ public class ProcessUrdf : MonoBehaviour
             }
             
 
-
+            
             // knob.interactionManager.RegisterInteractable(knob);
             // }
         }
