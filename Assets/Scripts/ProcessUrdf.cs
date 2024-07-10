@@ -56,8 +56,26 @@ public class ProcessUrdf : MonoBehaviour
 
             XRKnobAxes knob = obj.AddComponent<XRKnobAxes>();
             knob.rotationAxis.x = 1.0f;
-            knob.handle = obj.transform.GetChild(0).transform;
             knob.originalRotation = originalRotation;
+
+            // create child
+            GameObject knobChild = new GameObject("KnobChild");
+            knobChild.transform.position = obj.transform.position;
+            knobChild.transform.rotation = obj.transform.rotation;
+            knobChild.transform.localScale = obj.transform.localScale;
+
+            // move all children to the child
+
+            for (int i = obj.transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = obj.transform.GetChild(i);
+                Debug.Log(child.name);
+                child.SetParent(knobChild.transform, false);
+            }
+            
+            knobChild.transform.SetParent(obj.transform);
+
+            knob.handle = knobChild.transform;
 
             MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
             if (meshCollider == null)
@@ -73,7 +91,6 @@ public class ProcessUrdf : MonoBehaviour
                 knob.colliders.Add(meshCollider);
             }
             
-
             
             // knob.interactionManager.RegisterInteractable(knob);
         }
