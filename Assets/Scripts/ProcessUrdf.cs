@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VRTemplate;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -14,6 +15,7 @@ public class ProcessUrdf : MonoBehaviour
         {
             TraverseAndModify(urdfModel);
         }
+
     }
 
     void TraverseAndModify(GameObject obj)
@@ -22,7 +24,7 @@ public class ProcessUrdf : MonoBehaviour
 
         // Process the current object
         RemoveAndModifyComponents(obj);
-
+        
         // Recursively process each child
         foreach (Transform child in obj.transform)
         {
@@ -49,19 +51,13 @@ public class ProcessUrdf : MonoBehaviour
             rb.useGravity = false;
             rb.isKinematic = true;
 
-            Vector3 originalRotation = obj.transform.localEulerAngles;
-            Vector3 originalPosition = obj.transform.localPosition;
-            Debug.Log("Object: " + obj.name + "Original Rotation: " + originalRotation);
+            Vector3 originalRotation = obj.transform.eulerAngles;
 
 
             XRKnobAxes knob = obj.AddComponent<XRKnobAxes>();
             knob.rotationAxis.x = 1.0f;
+            knob.handle = obj.transform.GetChild(0).transform;
             knob.originalRotation = originalRotation;
-            // knob.handle = obj.transform;
-            // set child position
-            obj.transform.localPosition = originalPosition;
-
-            
 
             MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
             if (meshCollider == null)
@@ -74,16 +70,14 @@ public class ProcessUrdf : MonoBehaviour
             knob.colliders.Clear();
             if (meshCollider != null)
             {
-                Debug.Log("Object: " + obj.name);
-                Debug.Log("MeshCollider: " + meshCollider.gameObject.name);
                 knob.colliders.Add(meshCollider);
             }
             
 
             
             // knob.interactionManager.RegisterInteractable(knob);
-            // }
         }
     }
+
 
 }
