@@ -37,8 +37,10 @@ public class ProcessUrdf : MonoBehaviour
     void RemoveAndModifyComponents(GameObject obj)
     {
         var scripts = new List<MonoBehaviour>(obj.GetComponents<MonoBehaviour>());
+        bool fixedJoint = false;
         foreach (var script in scripts)
         {
+            fixedJoint = script.GetType().Name == "UrdfJointFixed";
             DestroyImmediate(script); 
         }
 
@@ -53,14 +55,18 @@ public class ProcessUrdf : MonoBehaviour
             rb.mass = 1.0f;
             rb.useGravity = false;
             rb.isKinematic = true;
+            // if fixedJoint we dont add XRGrabInteractable
+            if(!fixedJoint)
+            {
+                GameObject originalParent = obj.transform.parent.gameObject;
+                GameObject knobParent = new GameObject("KnobParent_" + obj.name);
 
-            GameObject originalParent = obj.transform.parent.gameObject;
-            GameObject knobParent = new GameObject("KnobParent_" + obj.name);
+                knobParent.transform.parent = originalParent.transform;
 
-            knobParent.transform.parent = originalParent.transform;
+                // Store the object and its new parent for later re-parenting
+                reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
+            }
 
-            // Store the object and its new parent for later re-parenting
-            reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
         }
     }
 
