@@ -8,14 +8,15 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class ProcessUrdf : MonoBehaviour
 {
     public GameObject urdfModel;  // Reference to the base of the robot's URDF model
+    private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
     void Start()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
+            reParent();
         }
-
     }
 
     void TraverseAndModify(GameObject obj)
@@ -29,6 +30,7 @@ public class ProcessUrdf : MonoBehaviour
         foreach (Transform child in obj.transform)
         {
             TraverseAndModify(child.gameObject);
+            // reParent();
         }
     }
 
@@ -43,7 +45,8 @@ public class ProcessUrdf : MonoBehaviour
         var articulationBody = obj.GetComponent<ArticulationBody>();
         if (articulationBody != null)
         {
-            DestroyImmediate(articulationBody); 
+            Debug.Log("Removing ArticulationBody from " + obj.name);
+            DestroyImmediate(articulationBody);
 
             // add rigidbody
             var rb = obj.AddComponent<Rigidbody>();
@@ -51,50 +54,84 @@ public class ProcessUrdf : MonoBehaviour
             rb.useGravity = false;
             rb.isKinematic = true;
 
-            Vector3 originalRotation = obj.transform.eulerAngles;
+            GameObject originalParent = obj.transform.parent.gameObject;
+            GameObject knobParent = new GameObject("KnobParent_" + obj.name);
 
+            knobParent.transform.parent = originalParent.transform;
 
-            XRKnobAxes knob = obj.AddComponent<XRKnobAxes>();
-            knob.rotationAxis.x = 1.0f;
+            // Store the object and its new parent for later re-parenting
+            reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
+        }
+    }
+
+    void reParent()
+    {
+        // Iterate from the end of the list to the beginning
+        for (int i = reparentingList.Count - 1; i >= 0; i--)
+        {
+            var pair = reparentingList[i];
+            GameObject child = pair.Key;
+            GameObject knobParent = pair.Value;
+
+            // Set the new parent
+            child.transform.parent = knobParent.transform;
+
+            // Preserve original rotation and position
+            Vector3 originalRotation = child.transform.localEulerAngles;
+            Debug.Log(child.name + " original rotation: " + originalRotation);
+            Vector3 originalPosition = child.transform.position;
+
+            // Add the XRKnobAxes component and configure it
+            XRKnobAxes knob = knobParent.AddComponent<XRKnobAxes>();
             knob.originalRotation = originalRotation;
+            knob.handle = child.transform;
 
-            // create child
-            GameObject knobChild = new GameObject("KnobChild");
-            knobChild.transform.position = obj.transform.position;
-            knobChild.transform.rotation = obj.transform.rotation;
-            knobChild.transform.localScale = obj.transform.localScale;
-
-            // move all children to the child
-
-            for (int i = obj.transform.childCount - 1; i >= 0; i--)
-            {
-                Transform child = obj.transform.GetChild(i);
-                Debug.Log(child.name);
-                child.SetParent(knobChild.transform, false);
-            }
-            
-            knobChild.transform.SetParent(obj.transform);
-
-            knob.handle = knobChild.transform;
-
-            MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
+            // Check for MeshCollider on the child or its descendants
+            MeshCollider meshCollider = child.GetComponent<MeshCollider>();
             if (meshCollider == null)
             {
-                // If no MeshCollider found on the object, search its children
-                meshCollider = obj.GetComponentInChildren<MeshCollider>();
+                meshCollider = child.GetComponentInChildren<MeshCollider>();
             }
-        
 
+            // Clear existing colliders and add the found one if any
             knob.colliders.Clear();
             if (meshCollider != null)
             {
                 knob.colliders.Add(meshCollider);
             }
-            
-            
-            // knob.interactionManager.RegisterInteractable(knob);
         }
     }
 
 
 }
+
+
+
+  // GameObject knobParent = new GameObject("KnobParent_"+obj.name);
+
+            // XRKnobAxes knob = knobParent.AddComponent<XRKnobAxes>();
+            // knob.rotationAxis.x = 1.0f;
+            // knob.originalRotation = originalRotation;
+           
+            // knobParent.transform.position = obj.transform.position;
+            // knobParent.transform.rotation = obj.transform.rotation;
+            // knobParent.transform.localScale = obj.transform.localScale;
+            
+            // obj.transform.SetParent(knobParent.transform);
+            // knobParent.transform.SetParent(originalParent.transform);
+
+            // knob.handle = obj.transform;
+
+            // MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
+            // if (meshCollider == null)
+            // {
+            //     // If no MeshCollider found on the object, search its children
+            //     meshCollider = obj.GetComponentInChildren<MeshCollider>();
+            // }
+        
+
+            // knob.colliders.Clear();
+            // if (meshCollider != null)
+            // {
+            //     knob.colliders.Add(meshCollider);
+            // }
