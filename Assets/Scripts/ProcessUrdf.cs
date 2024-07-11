@@ -93,13 +93,15 @@ public class ProcessUrdf : MonoBehaviour
             child.transform.localPosition = Vector3.zero;
             child.transform.localRotation = Quaternion.identity;
 
-            // Add CCDIK components to the child, and add references to the list
+            // // Add CCDIK components to the child, and add references to the list
             CCDIKJoint ccdik = child.AddComponent<CCDIKJoint>();
+            ccdik.axis = new Vector3(0, 1, 0);
             ccdikJoints.Add(ccdik);
 
 
             // // Add the XRKnob
             XRKnob knob = knobParent.AddComponent<XRKnob>();
+            knob.clampedMotion = false;
 
             knob.handle = child.transform;
 
@@ -137,6 +139,18 @@ public class ProcessUrdf : MonoBehaviour
         ccdIK.joints = ccdikJoints.ToArray();
         ccdIK.Tooltip = lastChild.transform;
         ccdIK.Target = instance.transform;
+
+        // xr events
+        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
+
+        // On select enter set CCDIK activ
+        grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
+            ccdIK.active = true;
+        });
+
+        grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
+            ccdIK.active = false;
+        });
     }
 
 
