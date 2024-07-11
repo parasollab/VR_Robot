@@ -9,7 +9,11 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class ProcessUrdf : MonoBehaviour
 {
     public GameObject urdfModel;  // Reference to the base of the robot's URDF model
+
+    public GameObject target;  // Reference to the target object for the CCDIK
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
+
+    private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
     void Start()
     {
@@ -17,6 +21,7 @@ public class ProcessUrdf : MonoBehaviour
         {
             TraverseAndModify(urdfModel);
             reParent();
+            setupIK();
         }
     }
 
@@ -71,7 +76,7 @@ public class ProcessUrdf : MonoBehaviour
 
     void reParent()
     {
-        // Iterate from the end of the list to the beginning
+
         for (int i = reparentingList.Count - 1; i >= 0; i--)
         {
             var pair = reparentingList[i];
@@ -81,14 +86,17 @@ public class ProcessUrdf : MonoBehaviour
             knobParent.transform.position = child.transform.position;
             knobParent.transform.rotation = child.transform.rotation;
 
-            // Quaternion originalRotation = child.transform.rotation;
-
             // // Set the new parent
             child.transform.parent = knobParent.transform;
 
             // zero out child's local position and rotation
             child.transform.localPosition = Vector3.zero;
             child.transform.localRotation = Quaternion.identity;
+
+            // Add CCDIK components to the child, and add references to the list
+            CCDIKJoint ccdik = child.AddComponent<CCDIKJoint>();
+            ccdikJoints.Add(ccdik);
+
 
             // // Add the XRKnob
             XRKnob knob = knobParent.AddComponent<XRKnob>();
@@ -111,36 +119,25 @@ public class ProcessUrdf : MonoBehaviour
         }
     }
 
+    void setupIK()
+    {
+        var lastPair = reparentingList[reparentingList.Count - 1];
+        GameObject lastChild = lastPair.Key;
+
+
+        // create target object for the last child
+        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
+        instance.transform.SetParent(lastChild.transform);
+        // Optionally reset the local position, rotation, and scale
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        // ccdIK
+        CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
+        
+        ccdIK.joints = ccdikJoints.ToArray();
+        ccdIK.Tooltip = lastChild.transform;
+        ccdIK.Target = instance.transform;
+    }
+
 
 }
-
-
-
-  // GameObject knobParent = new GameObject("KnobParent_"+obj.name);
-
-            // XRKnobAxes knob = knobParent.AddComponent<XRKnobAxes>();
-            // knob.rotationAxis.x = 1.0f;
-            // knob.originalRotation = originalRotation;
-           
-            // knobParent.transform.position = obj.transform.position;
-            // knobParent.transform.rotation = obj.transform.rotation;
-            // knobParent.transform.localScale = obj.transform.localScale;
-            
-            // obj.transform.SetParent(knobParent.transform);
-            // knobParent.transform.SetParent(originalParent.transform);
-
-            // knob.handle = obj.transform;
-
-            // MeshCollider meshCollider = obj.GetComponent<MeshCollider>();
-            // if (meshCollider == null)
-            // {
-            //     // If no MeshCollider found on the object, search its children
-            //     meshCollider = obj.GetComponentInChildren<MeshCollider>();
-            // }
-        
-
-            // knob.colliders.Clear();
-            // if (meshCollider != null)
-            // {
-            //     knob.colliders.Add(meshCollider);
-            // }

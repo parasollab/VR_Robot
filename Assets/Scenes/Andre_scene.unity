@@ -6137,6 +6137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   urdfModel: {fileID: 1037451143}
+  target: {fileID: 6876262152510213598, guid: bf8661b5e066f2b4cad89838f27f3f35, type: 3}
 --- !u!1 &875120419
 GameObject:
   m_ObjectHideFlags: 8
@@ -11026,7 +11027,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 4e-45, z: 1.1425e-41, w: 0}
+  m_BoundingSphereOverride: {x: 7.55e-43, y: 8.4442814e-27, z: 7.55e-43, w: NaN}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
