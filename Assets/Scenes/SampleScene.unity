@@ -150,7 +150,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6427267}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -172,8 +172,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa5d8720e507644ca0692d0a25cbe48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: 90}
+  axis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   maxAngle: 360
 --- !u!114 &6427271
 MonoBehaviour:
@@ -8220,7 +8220,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 351257325}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8242,8 +8242,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa5d8720e507644ca0692d0a25cbe48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: -90}
+  axis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   maxAngle: 360
 --- !u!114 &351257328
 MonoBehaviour:
@@ -9372,14 +9372,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385021403}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 351257326}
   m_Father: {fileID: 975437492}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
 --- !u!114 &385021405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9484,8 +9484,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Handle: {fileID: 351257326}
-  rotationAxis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: -90}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   m_Value: 0.5
   m_ClampedMotion: 0
   m_MaxAngle: 180
@@ -21219,14 +21219,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1357111658}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0.09970011, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1964237095}
   m_Father: {fileID: 993697864}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
 --- !u!1001 &802240819
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26088,6 +26088,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46398bc5d6905ad429a6d2d973afe002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &963041481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1327662193}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.06559, y: 2.1536794, z: 1.7415792}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &967767863
 GameObject:
   m_ObjectHideFlags: 8
@@ -35658,6 +35673,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1326031627}
   m_CullTransparentMesh: 1
+--- !u!1 &1327662193
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 963041481}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!4 &1327662194
 Transform:
   m_ObjectHideFlags: 0
@@ -37102,8 +37133,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Handle: {fileID: 1964237095}
-  rotationAxis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: -90}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   m_Value: 0.5
   m_ClampedMotion: 0
   m_MaxAngle: 180
@@ -39478,14 +39509,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1942649722}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: -0.09960024, y: 0.00000008940697, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1.0000002}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6427268}
   m_Father: {fileID: 1964237095}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!114 &1486826307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47896,7 +47927,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 9.1835e-41, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 2e-44, z: 1.1198e-41, w: 8.1436045e-36}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -51566,8 +51597,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Handle: {fileID: 6427268}
-  rotationAxis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: 90}
+  rotationAxis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   m_Value: 0.5
   m_ClampedMotion: 0
   m_MaxAngle: 180
@@ -52672,7 +52703,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1964237094}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -52694,8 +52725,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa5d8720e507644ca0692d0a25cbe48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axis: {x: 1, y: 0, z: 0}
-  originalRotation: {x: 0, y: 0, z: -90}
+  axis: {x: 0, y: 1, z: 0}
+  originalRotation: {x: 0, y: 0, z: 0}
   maxAngle: 360
 --- !u!114 &1964237097
 MonoBehaviour:
@@ -60119,3 +60150,4 @@ SceneRoots:
   - {fileID: 1804961680}
   - {fileID: 1243835327}
   - {fileID: 1329183700}
+  - {fileID: 963041481}
