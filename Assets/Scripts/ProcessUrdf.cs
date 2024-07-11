@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Robotics.UrdfImporter;
 using Unity.VRTemplate;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -39,7 +40,7 @@ public class ProcessUrdf : MonoBehaviour
         var scripts = new List<MonoBehaviour>(obj.GetComponents<MonoBehaviour>());
         bool fixedJoint = false;
         foreach (var script in scripts)
-        {
+        {   
             fixedJoint = script.GetType().Name == "UrdfJointFixed";
             DestroyImmediate(script); 
         }
@@ -47,7 +48,6 @@ public class ProcessUrdf : MonoBehaviour
         var articulationBody = obj.GetComponent<ArticulationBody>();
         if (articulationBody != null)
         {
-            Debug.Log("Removing ArticulationBody from " + obj.name);
             DestroyImmediate(articulationBody);
 
             // add rigidbody
@@ -84,11 +84,11 @@ public class ProcessUrdf : MonoBehaviour
 
             // Preserve original rotation and position
             Vector3 originalRotation = child.transform.localEulerAngles;
-            Debug.Log(child.name + " original rotation: " + originalRotation);
-            Vector3 originalPosition = child.transform.position;
+            Vector3 rotationAxis = child.transform.up;
 
             // Add the XRKnobAxes component and configure it
             XRKnobAxes knob = knobParent.AddComponent<XRKnobAxes>();
+            knob.rotationAxis = rotationAxis;
             knob.originalRotation = originalRotation;
             knob.handle = child.transform;
 
