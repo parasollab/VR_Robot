@@ -378,7 +378,7 @@ namespace Unity.VRTemplate
                     rotationVector = new Vector3(0.0f, 0.0f, angle);
                 else
                     rotationVector = new Vector3(angle, 0.0f, 0.0f);
-                rotationVector += originalRotation;
+                rotationVector += originalRotation; // zero
                 m_Handle.localEulerAngles = rotationVector;
             }
         }

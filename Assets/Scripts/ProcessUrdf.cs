@@ -31,7 +31,6 @@ public class ProcessUrdf : MonoBehaviour
         foreach (Transform child in obj.transform)
         {
             TraverseAndModify(child.gameObject);
-            // reParent();
         }
     }
 
@@ -79,20 +78,24 @@ public class ProcessUrdf : MonoBehaviour
             GameObject child = pair.Key;
             GameObject knobParent = pair.Value;
 
-            // Set the new parent
+            knobParent.transform.position = child.transform.position;
+            knobParent.transform.rotation = child.transform.rotation;
+
+            // Quaternion originalRotation = child.transform.rotation;
+
+            // // Set the new parent
             child.transform.parent = knobParent.transform;
 
-            // Preserve original rotation and position
-            Vector3 originalRotation = child.transform.localEulerAngles;
-            Vector3 rotationAxis = child.transform.up;
+            // zero out child's local position and rotation
+            child.transform.localPosition = Vector3.zero;
+            child.transform.localRotation = Quaternion.identity;
 
-            // Add the XRKnobAxes component and configure it
-            XRKnobAxes knob = knobParent.AddComponent<XRKnobAxes>();
-            knob.rotationAxis = rotationAxis;
-            knob.originalRotation = originalRotation;
+            // // Add the XRKnob
+            XRKnob knob = knobParent.AddComponent<XRKnob>();
+
             knob.handle = child.transform;
 
-            // Check for MeshCollider on the child or its descendants
+            // // Check for MeshCollider on the child or its descendants
             MeshCollider meshCollider = child.GetComponent<MeshCollider>();
             if (meshCollider == null)
             {
