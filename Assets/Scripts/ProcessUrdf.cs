@@ -5,6 +5,8 @@ using Unity.VRTemplate;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEditor;
+using Unity.VisualScripting;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -15,6 +17,9 @@ public class ProcessUrdf : MonoBehaviour
 
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
+    private List<bool> clampedMotionList = new List<bool>();
+
+    public bool saveAsPrefab = false;
     void Start()
     {
         if (urdfModel != null)
@@ -22,6 +27,11 @@ public class ProcessUrdf : MonoBehaviour
             TraverseAndModify(urdfModel);
             reParent();
             setupIK();
+            
+            if(saveAsPrefab)
+            {
+                savePrefab(urdfModel.name);
+            }
         }
     }
 
@@ -52,6 +62,9 @@ public class ProcessUrdf : MonoBehaviour
         var articulationBody = obj.GetComponent<ArticulationBody>();
         if (articulationBody != null)
         {
+
+            bool isClampedMotion = articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit < 360;
+            
             DestroyImmediate(articulationBody);
 
             // add rigidbody
@@ -69,6 +82,7 @@ public class ProcessUrdf : MonoBehaviour
 
                 // Store the object and its new parent for later re-parenting
                 reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
+                clampedMotionList.Add(isClampedMotion);
             }
 
         }
@@ -101,7 +115,7 @@ public class ProcessUrdf : MonoBehaviour
 
             // // Add the XRKnob
             XRKnob knob = knobParent.AddComponent<XRKnob>();
-            knob.clampedMotion = false;
+            knob.clampedMotion = clampedMotionList[i];
 
             knob.handle = child.transform;
 
@@ -151,6 +165,13 @@ public class ProcessUrdf : MonoBehaviour
         grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
             ccdIK.active = false;
         });
+    }
+
+    void savePrefab(string name)
+    {
+        // Save the prefab
+        string prefabPath = "Assets/"+name+".prefab";
+        GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
     }
 
 
