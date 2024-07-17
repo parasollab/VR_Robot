@@ -11,10 +11,9 @@ using Unity.VisualScripting;
 
 public class SetupIK : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public GameObject target;  // Reference to the target object for the CCDIK
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
     private GameObject lastChild;
+    private GameObject target;
     void Start()
     {
         TraverseAndAnalyze(this.gameObject);
@@ -26,11 +25,6 @@ public class SetupIK : MonoBehaviour
         if(ccdikJoints.Count == 0)
         {
             Debug.LogError("No CCDIKJoint found in children, error in prefabSetup");
-            return;
-        }
-        if(target == null)
-        {
-            Debug.LogError("No target object found, assign target object in script");
             return;
         }
         setupIK(lastChild);
@@ -49,6 +43,10 @@ public class SetupIK : MonoBehaviour
         {
             ccdikJoints.Add(obj.GetComponent<CCDIKJoint>());
         }
+        if(obj.name == "target")
+        {
+            target = obj;
+        }
         
         // Recursively process each child
         foreach (Transform child in obj.transform)
@@ -59,21 +57,15 @@ public class SetupIK : MonoBehaviour
 
     void setupIK(GameObject lastChild)
     {
-        // create target object for the last child
-        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
-        instance.transform.SetParent(lastChild.transform);
-        // Optionally reset the local position, rotation, and scale
-        instance.transform.localPosition = Vector3.zero;
-        instance.transform.localRotation = Quaternion.identity;
         // ccdIK
         CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
         
         ccdIK.joints = ccdikJoints.ToArray();
         ccdIK.Tooltip = lastChild.transform;
-        ccdIK.Target = instance.transform;
+        ccdIK.Target = target.transform;
 
         // xr events
-        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
+        XRGrabInteractable grabInteractable = target.GetComponent<XRGrabInteractable>();
 
         // On select enter set CCDIK activ
         grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {

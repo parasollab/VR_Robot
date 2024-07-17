@@ -18,15 +18,14 @@ public class ProcessUrdf : MonoBehaviour
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
     private List<bool> clampedMotionList = new List<bool>();
-   
 
-    public bool saveAsPrefab = false;
     void Awake()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
             reParent();
+            createTarget(reparentingList[reparentingList.Count - 1].Key);
             urdfModel.AddComponent<SetupIK>();  // Add the SetupIK script to the base of the robot's URDF model
             #if UNITY_EDITOR
             savePrefab(urdfModel.name);
@@ -134,6 +133,17 @@ public class ProcessUrdf : MonoBehaviour
                 knob.colliders.Add(meshCollider);
             }
         }
+    }
+
+    void createTarget(GameObject lastChild)
+    {
+        // create target object for the last child
+        GameObject target = Instantiate(this.target, lastChild.transform.position, lastChild.transform.rotation);
+        target.name = "target";
+        target.transform.SetParent(lastChild.transform);
+        target.transform.localPosition = Vector3.zero;
+        target.transform.localRotation = Quaternion.identity;
+
     }
 
 
