@@ -1,12 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Robotics.UrdfImporter;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Std;
+using RosMessageTypes.Trajectory;
+using RosMessageTypes.BuiltinInterfaces;
 using Unity.VRTemplate;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEditor;
 using Unity.VisualScripting;
+using UnityEngine.AddressableAssets;
+using System;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Unity.XR.CoreUtils;
+using UnityEngine.UI;
+using TMPro;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -15,9 +24,25 @@ public class ProcessUrdf : MonoBehaviour
     public GameObject target;  // Reference to the target object for the CCDIK
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
+    private List<bool> clampedMotionList = new List<bool>();
+
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
-    private List<bool> clampedMotionList = new List<bool>();
+    // variables for sending messages to ROS
+    public ROSConnection ros;
+    private string topicName = "/joint_trajectory";
+    protected List<Transform> knobs = new List<Transform>();
+
+    private List<double> jointPositions = new List<double>();
+
+    private List<String> jointNames = new List<String>();
+
+    private bool recordROS = false;
+
+    // string to retrieve UI prefab
+    private String robotUIPath = "Assets/Prefabs/RobotOptions.prefab";
+
+
 
     public bool saveAsPrefab = false;
     void Start()
@@ -27,12 +52,44 @@ public class ProcessUrdf : MonoBehaviour
             TraverseAndModify(urdfModel);
             reParent();
             setupIK();
+            StartCoroutine(LoadUI()); 
             
             if(saveAsPrefab)
             {
                 savePrefab(urdfModel.name);
             }
+            if (ros == null) ros = ROSConnection.GetOrCreateInstance();
+            ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
+
+            InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
         }
+    }
+
+    IEnumerator LoadUI() {
+        AsyncOperationHandle<GameObject> asyncRobotUI = Addressables.LoadAssetAsync<GameObject>(robotUIPath);
+        yield return asyncRobotUI;
+
+        if (asyncRobotUI.Status == AsyncOperationStatus.Succeeded)
+        {
+            GameObject robotUI = asyncRobotUI.Result;
+            robotUI = Instantiate(robotUI, urdfModel.transform);
+            GameObject buttonGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content").GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
+            GameObject textObject = buttonGameObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ");
+            
+            Button button = buttonGameObject.GetComponent<Button>();
+            TextMeshProUGUI buttonText = textObject.GetComponent<TextMeshProUGUI>();
+
+            button.onClick.AddListener(() => {
+                if (recordROS == true) {
+                    recordROS = false;
+                    buttonText.text = "Start Recording";
+                } else {
+                    recordROS = true;
+                    buttonText.text = "Stop Recording";
+                }
+            });
+
+        } 
     }
 
     void TraverseAndModify(GameObject obj)
@@ -96,6 +153,7 @@ public class ProcessUrdf : MonoBehaviour
             var pair = reparentingList[i];
             GameObject child = pair.Key;
             GameObject knobParent = pair.Value;
+            jointNames.Add(child.name);
 
             knobParent.transform.position = child.transform.position;
             knobParent.transform.rotation = child.transform.rotation;
@@ -118,6 +176,10 @@ public class ProcessUrdf : MonoBehaviour
             knob.clampedMotion = clampedMotionList[i];
 
             knob.handle = child.transform;
+
+            // Use .Prepend to reverse the joint order
+            knobs.Add(child.transform);
+            jointPositions.Add(child.transform.localRotation.eulerAngles.y);
 
             // // Check for MeshCollider on the child or its descendants
             MeshCollider meshCollider = child.GetComponent<MeshCollider>();
@@ -171,8 +233,38 @@ public class ProcessUrdf : MonoBehaviour
     {
         // Save the prefab
         string prefabPath = "Assets/"+name+".prefab";
+        #if UNITY_EDITOR
         GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
+        #endif
     }
 
+    void sendJointPositionMessage() {
+        if (recordROS) {
+            for (int i = 0; i < knobs.Count; i++) {
+                jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
+            }
+
+            JointTrajectoryMsg jointTrajectory = new JointTrajectoryMsg();
+
+            HeaderMsg header = new HeaderMsg
+            {
+                frame_id = urdfModel.name,
+                stamp = new TimeMsg {
+                    sec = (int)Time.time,
+                    nanosec = (uint)((Time.time - (int)Time.time) * 1e9)
+                }
+            };
+            jointTrajectory.header = header;
+            jointTrajectory.joint_names = jointNames.ToArray();
+
+            JointTrajectoryPointMsg jointTrajectoryPoint = new JointTrajectoryPointMsg
+            {
+                positions = jointPositions.ToArray(), 
+                time_from_start = new DurationMsg(1, 0),
+            };
+            jointTrajectory.points = new JointTrajectoryPointMsg[] { jointTrajectoryPoint };
+            ros.Publish(topicName, jointTrajectory);
+        }
+    }
 
 }
