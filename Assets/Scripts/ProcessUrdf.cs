@@ -18,20 +18,19 @@ public class ProcessUrdf : MonoBehaviour
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
     private List<bool> clampedMotionList = new List<bool>();
+   
 
     public bool saveAsPrefab = false;
-    void Start()
+    void Awake()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
             reParent();
-            setupIK();
-            
-            if(saveAsPrefab)
-            {
-                savePrefab(urdfModel.name);
-            }
+            urdfModel.AddComponent<SetupIK>();  // Add the SetupIK script to the base of the robot's URDF model
+            #if UNITY_EDITOR
+            savePrefab(urdfModel.name);
+            #endif
         }
     }
 
@@ -74,7 +73,9 @@ public class ProcessUrdf : MonoBehaviour
             rb.isKinematic = true;
             // if fixedJoint we dont add XRGrabInteractable
             if(!fixedJoint)
-            {
+            { 
+
+
                 GameObject originalParent = obj.transform.parent.gameObject;
                 GameObject knobParent = new GameObject("KnobParent_" + obj.name);
 
@@ -135,37 +136,6 @@ public class ProcessUrdf : MonoBehaviour
         }
     }
 
-    void setupIK()
-    {
-        var lastPair = reparentingList[reparentingList.Count - 1];
-        GameObject lastChild = lastPair.Key;
-
-
-        // create target object for the last child
-        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
-        instance.transform.SetParent(lastChild.transform);
-        // Optionally reset the local position, rotation, and scale
-        instance.transform.localPosition = Vector3.zero;
-        instance.transform.localRotation = Quaternion.identity;
-        // ccdIK
-        CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
-        
-        ccdIK.joints = ccdikJoints.ToArray();
-        ccdIK.Tooltip = lastChild.transform;
-        ccdIK.Target = instance.transform;
-
-        // xr events
-        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
-
-        // On select enter set CCDIK activ
-        grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
-            ccdIK.active = true;
-        });
-
-        grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
-            ccdIK.active = false;
-        });
-    }
 
     void savePrefab(string name)
     {
