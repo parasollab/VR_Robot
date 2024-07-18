@@ -1,0 +1,270 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Robotics.UrdfImporter;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Std;
+using RosMessageTypes.Trajectory;
+using RosMessageTypes.BuiltinInterfaces;
+using Unity.VRTemplate;
+using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEditor;
+using Unity.VisualScripting;
+using UnityEngine.AddressableAssets;
+using System;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Unity.XR.CoreUtils;
+using UnityEngine.UI;
+using TMPro;
+
+public class ProcessUrdf : MonoBehaviour
+{
+    public GameObject urdfModel;  // Reference to the base of the robot's URDF model
+
+    public GameObject target;  // Reference to the target object for the CCDIK
+    private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
+
+    private List<bool> clampedMotionList = new List<bool>();
+
+    private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
+
+    // variables for sending messages to ROS
+    public ROSConnection ros;
+    private string topicName = "/joint_trajectory";
+    protected List<Transform> knobs = new List<Transform>();
+
+    private List<double> jointPositions = new List<double>();
+
+    private List<String> jointNames = new List<String>();
+
+    private bool recordROS = false;
+
+    // string to retrieve UI prefab
+    private String robotUIPath = "Assets/Prefabs/RobotOptions.prefab";
+
+
+
+    public bool saveAsPrefab = false;
+    void Start()
+    {
+        if (urdfModel != null)
+        {
+            TraverseAndModify(urdfModel);
+            reParent();
+            setupIK();
+            StartCoroutine(LoadUI()); 
+            
+            if(saveAsPrefab)
+            {
+                savePrefab(urdfModel.name);
+            }
+            if (ros == null) ros = ROSConnection.GetOrCreateInstance();
+            ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
+
+            InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
+        }
+    }
+
+    IEnumerator LoadUI() {
+        AsyncOperationHandle<GameObject> asyncRobotUI = Addressables.LoadAssetAsync<GameObject>(robotUIPath);
+        yield return asyncRobotUI;
+
+        if (asyncRobotUI.Status == AsyncOperationStatus.Succeeded)
+        {
+            GameObject robotUI = asyncRobotUI.Result;
+            robotUI = Instantiate(robotUI, urdfModel.transform);
+            GameObject buttonGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content").GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
+            GameObject textObject = buttonGameObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ");
+            
+            Button button = buttonGameObject.GetComponent<Button>();
+            TextMeshProUGUI buttonText = textObject.GetComponent<TextMeshProUGUI>();
+
+            button.onClick.AddListener(() => {
+                if (recordROS == true) {
+                    recordROS = false;
+                    buttonText.text = "Start Recording";
+                } else {
+                    recordROS = true;
+                    buttonText.text = "Stop Recording";
+                }
+            });
+
+        } 
+    }
+
+    void TraverseAndModify(GameObject obj)
+    {
+        if (obj == null) return;
+
+        // Process the current object
+        RemoveAndModifyComponents(obj);
+        
+        // Recursively process each child
+        foreach (Transform child in obj.transform)
+        {
+            TraverseAndModify(child.gameObject);
+        }
+    }
+
+    void RemoveAndModifyComponents(GameObject obj)
+    {
+        var scripts = new List<MonoBehaviour>(obj.GetComponents<MonoBehaviour>());
+        bool fixedJoint = false;
+        foreach (var script in scripts)
+        {   
+            fixedJoint = script.GetType().Name == "UrdfJointFixed";
+            DestroyImmediate(script); 
+        }
+
+        var articulationBody = obj.GetComponent<ArticulationBody>();
+        if (articulationBody != null)
+        {
+
+            bool isClampedMotion = articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit < 360;
+            
+            DestroyImmediate(articulationBody);
+
+            // add rigidbody
+            var rb = obj.AddComponent<Rigidbody>();
+            rb.mass = 1.0f;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+            // if fixedJoint we dont add XRGrabInteractable
+            if(!fixedJoint)
+            {
+                GameObject originalParent = obj.transform.parent.gameObject;
+                GameObject knobParent = new GameObject("KnobParent_" + obj.name);
+
+                knobParent.transform.parent = originalParent.transform;
+
+                // Store the object and its new parent for later re-parenting
+                reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
+                clampedMotionList.Add(isClampedMotion);
+            }
+
+        }
+    }
+
+    void reParent()
+    {
+
+        for (int i = reparentingList.Count - 1; i >= 0; i--)
+        {
+            var pair = reparentingList[i];
+            GameObject child = pair.Key;
+            GameObject knobParent = pair.Value;
+            jointNames.Add(child.name);
+
+            knobParent.transform.position = child.transform.position;
+            knobParent.transform.rotation = child.transform.rotation;
+
+            // // Set the new parent
+            child.transform.parent = knobParent.transform;
+
+            // zero out child's local position and rotation
+            child.transform.localPosition = Vector3.zero;
+            child.transform.localRotation = Quaternion.identity;
+
+            // // Add CCDIK components to the child, and add references to the list
+            CCDIKJoint ccdik = child.AddComponent<CCDIKJoint>();
+            ccdik.axis = new Vector3(0, 1, 0);
+            ccdikJoints.Add(ccdik);
+
+
+            // // Add the XRKnob
+            XRKnob knob = knobParent.AddComponent<XRKnob>();
+            knob.clampedMotion = clampedMotionList[i];
+
+            knob.handle = child.transform;
+
+            // Use .Prepend to reverse the joint order
+            knobs.Add(child.transform);
+            jointPositions.Add(child.transform.localRotation.eulerAngles.y);
+
+            // // Check for MeshCollider on the child or its descendants
+            MeshCollider meshCollider = child.GetComponent<MeshCollider>();
+            if (meshCollider == null)
+            {
+                meshCollider = child.GetComponentInChildren<MeshCollider>();
+            }
+
+            // Clear existing colliders and add the found one if any
+            knob.colliders.Clear();
+            if (meshCollider != null)
+            {
+                knob.colliders.Add(meshCollider);
+            }
+        }
+    }
+
+    void setupIK()
+    {
+        var lastPair = reparentingList[reparentingList.Count - 1];
+        GameObject lastChild = lastPair.Key;
+
+
+        // create target object for the last child
+        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
+        instance.transform.SetParent(lastChild.transform);
+        // Optionally reset the local position, rotation, and scale
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        // ccdIK
+        CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
+        
+        ccdIK.joints = ccdikJoints.ToArray();
+        ccdIK.Tooltip = lastChild.transform;
+        ccdIK.Target = instance.transform;
+
+        // xr events
+        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
+
+        // On select enter set CCDIK activ
+        grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
+            ccdIK.active = true;
+        });
+
+        grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
+            ccdIK.active = false;
+        });
+    }
+
+    void savePrefab(string name)
+    {
+        // Save the prefab
+        string prefabPath = "Assets/"+name+".prefab";
+        #if UNITY_EDITOR
+        GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
+        #endif
+    }
+
+    void sendJointPositionMessage() {
+        if (recordROS) {
+            for (int i = 0; i < knobs.Count; i++) {
+                jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
+            }
+
+            JointTrajectoryMsg jointTrajectory = new JointTrajectoryMsg();
+
+            HeaderMsg header = new HeaderMsg
+            {
+                frame_id = urdfModel.name,
+                stamp = new TimeMsg {
+                    sec = (int)Time.time,
+                    nanosec = (uint)((Time.time - (int)Time.time) * 1e9)
+                }
+            };
+            jointTrajectory.header = header;
+            jointTrajectory.joint_names = jointNames.ToArray();
+
+            JointTrajectoryPointMsg jointTrajectoryPoint = new JointTrajectoryPointMsg
+            {
+                positions = jointPositions.ToArray(), 
+                time_from_start = new DurationMsg(1, 0),
+            };
+            jointTrajectory.points = new JointTrajectoryPointMsg[] { jointTrajectoryPoint };
+            ros.Publish(topicName, jointTrajectory);
+        }
+    }
+
+}

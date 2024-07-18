@@ -110,11 +110,11 @@ namespace Unity.VRTemplate
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '1'")]
-        float m_MaxAngle = 180f;
+        float m_MaxAngle = 360f;
 
         [SerializeField]
         [Tooltip("Rotation of the knob at value '0'")]
-        float m_MinAngle = -180f;
+        float m_MinAngle = 0f;
 
         [SerializeField]
         [Tooltip("Angle increments to support, if greater than '0'")]
@@ -380,8 +380,7 @@ namespace Unity.VRTemplate
                     rotationVector = new Vector3(0.0f, 0.0f, angle);
                 else
                     rotationVector = new Vector3(angle, 0.0f, 0.0f);
-                rotationVector += originalRotation;
-
+                rotationVector += originalRotation; // zero
                 m_Handle.localEulerAngles = rotationVector;
             }
         }
