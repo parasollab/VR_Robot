@@ -25,6 +25,7 @@ public class ProcessUrdf : MonoBehaviour
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
     private List<Tuple<float, float>> jointLimits = new List<Tuple<float, float>>();
+    
     private List<bool> clampedMotionList = new List<bool>();
 
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
@@ -258,7 +259,7 @@ public class ProcessUrdf : MonoBehaviour
     void savePrefab(string name)
     {
         // Save the prefab
-        string prefabPath = "Assets/"+name+".prefab";
+        string prefabPath = "Assets/Prefabs/"+name+".prefab";
         #if UNITY_EDITOR
         GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
         #endif
