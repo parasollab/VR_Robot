@@ -24,6 +24,7 @@ public class ProcessUrdf : MonoBehaviour
     public GameObject target;  // Reference to the target object for the CCDIK
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
+    private List<Tuple<float, float>> jointLimits = new List<Tuple<float, float>>();
     private List<bool> clampedMotionList = new List<bool>();
 
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
@@ -73,11 +74,12 @@ public class ProcessUrdf : MonoBehaviour
         {
             GameObject robotUI = asyncRobotUI.Result;
             robotUI = Instantiate(robotUI, urdfModel.transform);
-            GameObject buttonGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content").GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
-            GameObject textObject = buttonGameObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ");
-            
-            Button button = buttonGameObject.GetComponent<Button>();
-            TextMeshProUGUI buttonText = textObject.GetComponent<TextMeshProUGUI>();
+            GameObject contentGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content");
+
+            // button
+            GameObject buttonObject = contentGameObject.GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
+            Button button = buttonObject.GetComponent<Button>();
+            TextMeshProUGUI buttonText = buttonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
             button.onClick.AddListener(() => {
                 if (recordROS == true) {
@@ -87,6 +89,26 @@ public class ProcessUrdf : MonoBehaviour
                     recordROS = true;
                     buttonText.text = "Stop Recording";
                 }
+            });
+
+            // dropdown and slider
+            TMP_Dropdown dropdown = contentGameObject.GetNamedChild("List Item Dropdown").GetNamedChild("Dropdown").GetComponent<TMP_Dropdown>();
+            Slider slider = contentGameObject.GetNamedChild("List Item Slider").GetNamedChild("MinMax Slider").GetComponent<Slider>();
+            TextMeshProUGUI sliderText = slider.gameObject.GetNamedChild("Value Text").GetComponent<TextMeshProUGUI>();
+
+            dropdown.AddOptions(jointNames);
+            int dropdownIndex = 0;
+            slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnob>().value;
+            sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
+
+            dropdown.onValueChanged.AddListener(delegate {
+                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
+                dropdownIndex = dropdown.value;
+            });
+
+            slider.onValueChanged.AddListener(delegate {
+                knobs[dropdownIndex].GetComponentInParent<XRKnob>().value = slider.value;
+                sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
             });
 
         } 
@@ -121,6 +143,7 @@ public class ProcessUrdf : MonoBehaviour
         {
 
             bool isClampedMotion = articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit < 360;
+            Tuple<float, float> jointLimit = new Tuple<float, float>(articulationBody.xDrive.lowerLimit, articulationBody.xDrive.upperLimit);
             
             DestroyImmediate(articulationBody);
 
@@ -140,6 +163,7 @@ public class ProcessUrdf : MonoBehaviour
                 // Store the object and its new parent for later re-parenting
                 reparentingList.Add(new KeyValuePair<GameObject, GameObject>(obj, knobParent));
                 clampedMotionList.Add(isClampedMotion);
+                jointLimits.Add(jointLimit);
             }
 
         }
@@ -174,6 +198,8 @@ public class ProcessUrdf : MonoBehaviour
             // // Add the XRKnob
             XRKnob knob = knobParent.AddComponent<XRKnob>();
             knob.clampedMotion = clampedMotionList[i];
+            knob.minAngle = jointLimits[i].Item1;
+            knob.maxAngle = jointLimits[i].Item2;
 
             knob.handle = child.transform;
 
