@@ -10,6 +10,7 @@ using Unity.VisualScripting;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Theme.Primitives;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -21,6 +22,8 @@ public class ProcessUrdf : MonoBehaviour
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
 
     private List<bool> clampedMotionList = new List<bool>();
+
+    public ColorAffordanceThemeDatumProperty affordanceThemeDatum;
 
     void Awake()
     {
@@ -121,23 +124,8 @@ public class ProcessUrdf : MonoBehaviour
             knob.clampedMotion = clampedMotionList[i];
             knob.handle = child.transform;
 
-            // create interaction affordance
-            GameObject knobAffordance = new GameObject("KnobAffordance");
-            knobAffordance.transform.parent = knobParent.transform;
-            XRInteractableAffordanceStateProvider affordanceProvider = knobAffordance.AddComponent<XRInteractableAffordanceStateProvider>();
-            affordanceProvider.interactableSource = knob;
-            affordanceProvider.activateClickAnimationMode = XRInteractableAffordanceStateProvider.ActivateClickAnimationMode.Activated;
 
-            // add xr interaction affordance receiver
-            ColorMaterialPropertyAffordanceReceiver colorMaterialPropertyAffordanceReceiver = knobAffordance.AddComponent<ColorMaterialPropertyAffordanceReceiver>();
-            colorMaterialPropertyAffordanceReceiver.replaceIdleStateValueWithInitialValue = true;
-            MaterialPropertyBlockHelper materialPropertyBlockHelper = knobAffordance.GetComponent<MaterialPropertyBlockHelper>();
-            colorMaterialPropertyAffordanceReceiver.materialPropertyBlockHelper = materialPropertyBlockHelper;
-            // get child mesh renderers
-            MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
-            materialPropertyBlockHelper.rendererTarget = meshRenderers[0];
-            materialPropertyBlockHelper.enabled = true;
-            
+            createInteractionAffordance(child, knob, knobParent);
             
 
             // colorMaterialPropertyAffordanceReceiver.affordanceThemeDatum = 
@@ -155,6 +143,30 @@ public class ProcessUrdf : MonoBehaviour
                 knob.colliders.Add(meshCollider);
             }
         }
+    }
+
+    void createInteractionAffordance(GameObject child, XRKnob knob, GameObject knobParent)
+    {
+        // create interaction affordance
+            GameObject knobAffordance = new GameObject("KnobAffordance");
+            knobAffordance.transform.parent = knobParent.transform;
+            XRInteractableAffordanceStateProvider affordanceProvider = knobAffordance.AddComponent<XRInteractableAffordanceStateProvider>();
+            affordanceProvider.interactableSource = knob;
+            affordanceProvider.activateClickAnimationMode = XRInteractableAffordanceStateProvider.ActivateClickAnimationMode.Activated;
+
+            GameObject colorAffordance = new GameObject("ColorAffordance");
+            colorAffordance.transform.parent = knobAffordance.transform;
+
+            // add xr interaction affordance receiver
+            
+            ColorMaterialPropertyAffordanceReceiver colorMaterialPropertyAffordanceReceiver = colorAffordance.AddComponent<ColorMaterialPropertyAffordanceReceiver>();
+            colorMaterialPropertyAffordanceReceiver.replaceIdleStateValueWithInitialValue = true;
+            MaterialPropertyBlockHelper materialPropertyBlockHelper = colorAffordance.GetComponent<MaterialPropertyBlockHelper>();
+            colorMaterialPropertyAffordanceReceiver.affordanceThemeDatum = affordanceThemeDatum;
+            // get child mesh renderers
+            MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
+            materialPropertyBlockHelper.rendererTarget = meshRenderers[0];
+            materialPropertyBlockHelper.enabled = true;
     }
 
     void createTarget(GameObject lastChild)
