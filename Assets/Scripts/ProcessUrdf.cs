@@ -154,6 +154,8 @@ public class ProcessUrdf : MonoBehaviour
             affordanceProvider.interactableSource = knob;
             affordanceProvider.activateClickAnimationMode = XRInteractableAffordanceStateProvider.ActivateClickAnimationMode.Activated;
 
+
+
             GameObject colorAffordance = new GameObject("ColorAffordance");
             colorAffordance.transform.parent = knobAffordance.transform;
 
@@ -163,7 +165,6 @@ public class ProcessUrdf : MonoBehaviour
             colorMaterialPropertyAffordanceReceiver.replaceIdleStateValueWithInitialValue = true;
             MaterialPropertyBlockHelper materialPropertyBlockHelper = colorAffordance.GetComponent<MaterialPropertyBlockHelper>();
             colorMaterialPropertyAffordanceReceiver.affordanceThemeDatum = affordanceThemeDatum;
-            // get child mesh renderers
             MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
             materialPropertyBlockHelper.rendererTarget = meshRenderers[0];
             materialPropertyBlockHelper.enabled = true;
