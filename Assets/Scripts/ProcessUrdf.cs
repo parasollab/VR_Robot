@@ -46,23 +46,22 @@ public class ProcessUrdf : MonoBehaviour
 
 
 
-    public bool saveAsPrefab = false;
-    void Start()
+    void Awake()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
             reParent();
-            setupIK();
-            StartCoroutine(LoadUI()); 
-            
-            if(saveAsPrefab)
-            {
-                savePrefab(urdfModel.name);
-            }
+            StartCoroutine(LoadUI());
+
+            createTarget(reparentingList[reparentingList.Count - 1].Key);
+            urdfModel.AddComponent<SetupIK>();  // Add the SetupIK script to the base of the robot's URDF model
+            #if UNITY_EDITOR
+            savePrefab(urdfModel.name);
+            #endif
+
             if (ros == null) ros = ROSConnection.GetOrCreateInstance();
             ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
-
             InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
         }
     }
@@ -155,7 +154,9 @@ public class ProcessUrdf : MonoBehaviour
             rb.isKinematic = true;
             // if fixedJoint we dont add XRGrabInteractable
             if(!fixedJoint)
-            {
+            { 
+
+
                 GameObject originalParent = obj.transform.parent.gameObject;
                 GameObject knobParent = new GameObject("KnobParent_" + obj.name);
 
@@ -224,37 +225,17 @@ public class ProcessUrdf : MonoBehaviour
         }
     }
 
-    void setupIK()
+    void createTarget(GameObject lastChild)
     {
-        var lastPair = reparentingList[reparentingList.Count - 1];
-        GameObject lastChild = lastPair.Key;
-
-
         // create target object for the last child
-        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
-        instance.transform.SetParent(lastChild.transform);
-        // Optionally reset the local position, rotation, and scale
-        instance.transform.localPosition = Vector3.zero;
-        instance.transform.localRotation = Quaternion.identity;
-        // ccdIK
-        CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
-        
-        ccdIK.joints = ccdikJoints.ToArray();
-        ccdIK.Tooltip = lastChild.transform;
-        ccdIK.Target = instance.transform;
+        GameObject target = Instantiate(this.target, lastChild.transform.position, lastChild.transform.rotation);
+        target.name = "target";
+        target.transform.SetParent(lastChild.transform);
+        target.transform.localPosition = Vector3.zero;
+        target.transform.localRotation = Quaternion.identity;
 
-        // xr events
-        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
-
-        // On select enter set CCDIK activ
-        grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
-            ccdIK.active = true;
-        });
-
-        grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
-            ccdIK.active = false;
-        });
     }
+
 
     void savePrefab(string name)
     {
