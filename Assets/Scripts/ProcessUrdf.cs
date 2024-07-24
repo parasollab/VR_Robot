@@ -16,6 +16,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Unity.XR.CoreUtils;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering;
+using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Theme.Primitives;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -29,6 +33,7 @@ public class ProcessUrdf : MonoBehaviour
     private List<bool> clampedMotionList = new List<bool>();
 
     private List<CCDIKJoint> ccdikJoints = new List<CCDIKJoint>();
+    public ColorAffordanceThemeDatumProperty affordanceThemeDatum;
 
     // variables for sending messages to ROS
     public ROSConnection ros;
@@ -47,13 +52,15 @@ public class ProcessUrdf : MonoBehaviour
 
 
     public bool saveAsPrefab = false;
-    void Start()
+
+    void Awake()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
             reParent();
-            setupIK();
+            createTarget(reparentingList[reparentingList.Count - 1].Key);
+            urdfModel.AddComponent<SetupIK>();
             StartCoroutine(LoadUI()); 
             
             if(saveAsPrefab)
@@ -62,7 +69,6 @@ public class ProcessUrdf : MonoBehaviour
             }
             if (ros == null) ros = ROSConnection.GetOrCreateInstance();
             ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
-
             InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
         }
     }
@@ -103,8 +109,8 @@ public class ProcessUrdf : MonoBehaviour
             sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
 
             dropdown.onValueChanged.AddListener(delegate {
-                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
                 dropdownIndex = dropdown.value;
+                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
             });
 
             slider.onValueChanged.AddListener(delegate {
@@ -203,6 +209,9 @@ public class ProcessUrdf : MonoBehaviour
             knob.maxAngle = jointLimits[i].Item2;
 
             knob.handle = child.transform;
+            
+            createInteractionAffordance(child, knob, knobParent);
+            Debug.Log("Teste");
 
             // Use .Prepend to reverse the joint order
             knobs.Add(child.transform);
@@ -224,37 +233,73 @@ public class ProcessUrdf : MonoBehaviour
         }
     }
 
-    void setupIK()
+    void createInteractionAffordance(GameObject child, XRKnob knob, GameObject knobParent)
     {
-        var lastPair = reparentingList[reparentingList.Count - 1];
-        GameObject lastChild = lastPair.Key;
+        // create interaction affordance
+            GameObject knobAffordance = new GameObject("KnobAffordance");
+            knobAffordance.transform.parent = knobParent.transform;
+            XRInteractableAffordanceStateProvider affordanceProvider = knobAffordance.AddComponent<XRInteractableAffordanceStateProvider>();
+            affordanceProvider.interactableSource = knob;
+            affordanceProvider.activateClickAnimationMode = XRInteractableAffordanceStateProvider.ActivateClickAnimationMode.Activated;
 
 
-        // create target object for the last child
-        GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
-        instance.transform.SetParent(lastChild.transform);
-        // Optionally reset the local position, rotation, and scale
-        instance.transform.localPosition = Vector3.zero;
-        instance.transform.localRotation = Quaternion.identity;
-        // ccdIK
-        CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
-        
-        ccdIK.joints = ccdikJoints.ToArray();
-        ccdIK.Tooltip = lastChild.transform;
-        ccdIK.Target = instance.transform;
 
-        // xr events
-        XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
+            GameObject colorAffordance = new GameObject("ColorAffordance");
+            colorAffordance.transform.parent = knobAffordance.transform;
 
-        // On select enter set CCDIK activ
-        grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
-            ccdIK.active = true;
-        });
-
-        grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
-            ccdIK.active = false;
-        });
+            // add xr interaction affordance receiver
+            
+            ColorMaterialPropertyAffordanceReceiver colorMaterialPropertyAffordanceReceiver = colorAffordance.AddComponent<ColorMaterialPropertyAffordanceReceiver>();
+            colorMaterialPropertyAffordanceReceiver.replaceIdleStateValueWithInitialValue = true;
+            MaterialPropertyBlockHelper materialPropertyBlockHelper = colorAffordance.GetComponent<MaterialPropertyBlockHelper>();
+            colorMaterialPropertyAffordanceReceiver.affordanceThemeDatum = affordanceThemeDatum;
+            MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
+            materialPropertyBlockHelper.rendererTarget = meshRenderers[0];
+            materialPropertyBlockHelper.enabled = true;
     }
+
+    void createTarget(GameObject lastChild)
+    {
+        // create target object for the last child
+        GameObject target = Instantiate(this.target, lastChild.transform.position, lastChild.transform.rotation);
+        target.name = "target";
+        target.transform.SetParent(lastChild.transform);
+        target.transform.localPosition = Vector3.zero;
+        target.transform.localRotation = Quaternion.identity;
+
+    }
+
+    // void setupIK()
+    // {
+    //     var lastPair = reparentingList[reparentingList.Count - 1];
+    //     GameObject lastChild = lastPair.Key;
+
+
+    //     // create target object for the last child
+    //     GameObject instance = Instantiate(target, lastChild.transform.position, lastChild.transform.rotation);
+    //     instance.transform.SetParent(lastChild.transform);
+    //     // Optionally reset the local position, rotation, and scale
+    //     instance.transform.localPosition = Vector3.zero;
+    //     instance.transform.localRotation = Quaternion.identity;
+    //     // ccdIK
+    //     CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
+        
+    //     ccdIK.joints = ccdikJoints.ToArray();
+    //     ccdIK.Tooltip = lastChild.transform;
+    //     ccdIK.Target = instance.transform;
+
+    //     // xr events
+    //     XRGrabInteractable grabInteractable = instance.GetComponent<XRGrabInteractable>();
+
+    //     // On select enter set CCDIK activ
+    //     grabInteractable.selectEntered.AddListener((SelectEnterEventArgs interactor) => {
+    //         ccdIK.active = true;
+    //     });
+
+    //     grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
+    //         ccdIK.active = false;
+    //     });
+    // }
 
     void savePrefab(string name)
     {
