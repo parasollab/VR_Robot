@@ -109,8 +109,8 @@ public class ProcessUrdf : MonoBehaviour
             sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
 
             dropdown.onValueChanged.AddListener(delegate {
-                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
                 dropdownIndex = dropdown.value;
+                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
             });
 
             slider.onValueChanged.AddListener(delegate {
