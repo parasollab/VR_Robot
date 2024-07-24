@@ -211,6 +211,7 @@ public class ProcessUrdf : MonoBehaviour
             knob.handle = child.transform;
             
             createInteractionAffordance(child, knob, knobParent);
+            Debug.Log("Teste");
 
             // Use .Prepend to reverse the joint order
             knobs.Add(child.transform);
