@@ -20,6 +20,7 @@ using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Theme.Primitives;
+using System.Threading.Tasks;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -59,23 +60,33 @@ public class ProcessUrdf : MonoBehaviour
         {
             TraverseAndModify(urdfModel);
             reParent();
+            
             createTarget(reparentingList[reparentingList.Count - 1].Key);
             urdfModel.AddComponent<SetupIK>();
-            StartCoroutine(LoadUI()); 
-            
-            if(saveAsPrefab)
-            {
-                savePrefab(urdfModel.name);
-            }
-            if (ros == null) ros = ROSConnection.GetOrCreateInstance();
-            ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
-            InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
+
+            StartCoroutine(InitializeAsync()); 
         }
     }
 
-    IEnumerator LoadUI() {
+    IEnumerator InitializeAsync() {
+        Task uiTask = LoadUI();
+        yield return new WaitUntil(() => uiTask.IsCompleted);
+
+        if (uiTask.IsCompletedSuccessfully)
+        {    
+            #if UNITY_EDITOR
+            savePrefab(urdfModel.name);
+            #endif
+        }
+        else
+        {
+            Debug.LogError("Failed to load the Robot UI.");
+        }
+    }
+
+    async Task LoadUI() {
         AsyncOperationHandle<GameObject> asyncRobotUI = Addressables.LoadAssetAsync<GameObject>(robotUIPath);
-        yield return asyncRobotUI;
+        await asyncRobotUI.Task;
 
         if (asyncRobotUI.Status == AsyncOperationStatus.Succeeded)
         {
