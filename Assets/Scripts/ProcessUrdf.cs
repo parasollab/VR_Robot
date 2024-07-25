@@ -16,6 +16,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Unity.XR.CoreUtils;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading.Tasks;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -41,10 +42,9 @@ public class ProcessUrdf : MonoBehaviour
 
     private bool recordROS = false;
 
-    // string to retrieve UI prefab
+    GameObject robotUI;
+
     private String robotUIPath = "Assets/Prefabs/RobotOptions.prefab";
-
-
 
     void Awake()
     {
@@ -52,66 +52,28 @@ public class ProcessUrdf : MonoBehaviour
         {
             TraverseAndModify(urdfModel);
             reParent();
-            StartCoroutine(LoadUI());
-
-            createTarget(reparentingList[reparentingList.Count - 1].Key);
-            urdfModel.AddComponent<SetupIK>();  // Add the SetupIK script to the base of the robot's URDF model
-            #if UNITY_EDITOR
-            savePrefab(urdfModel.name);
-            #endif
-
-            if (ros == null) ros = ROSConnection.GetOrCreateInstance();
-            ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
-            InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f);
+            
+            StartCoroutine(InitializeAsync());
         }
     }
 
-    IEnumerator LoadUI() {
-        AsyncOperationHandle<GameObject> asyncRobotUI = Addressables.LoadAssetAsync<GameObject>(robotUIPath);
-        yield return asyncRobotUI;
+    IEnumerator InitializeAsync() {
+        Task uiTask = LoadRobotUIAsync();
+        yield return new WaitUntil(() => uiTask.IsCompleted);
 
-        if (asyncRobotUI.Status == AsyncOperationStatus.Succeeded)
+        if (uiTask.IsCompletedSuccessfully)
         {
-            GameObject robotUI = asyncRobotUI.Result;
-            robotUI = Instantiate(robotUI, urdfModel.transform);
-            GameObject contentGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content");
-
-            // button
-            GameObject buttonObject = contentGameObject.GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
-            Button button = buttonObject.GetComponent<Button>();
-            TextMeshProUGUI buttonText = buttonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
-
-            button.onClick.AddListener(() => {
-                if (recordROS == true) {
-                    recordROS = false;
-                    buttonText.text = "Start Recording";
-                } else {
-                    recordROS = true;
-                    buttonText.text = "Stop Recording";
-                }
-            });
-
-            // dropdown and slider
-            TMP_Dropdown dropdown = contentGameObject.GetNamedChild("List Item Dropdown").GetNamedChild("Dropdown").GetComponent<TMP_Dropdown>();
-            Slider slider = contentGameObject.GetNamedChild("List Item Slider").GetNamedChild("MinMax Slider").GetComponent<Slider>();
-            TextMeshProUGUI sliderText = slider.gameObject.GetNamedChild("Value Text").GetComponent<TextMeshProUGUI>();
-
-            dropdown.AddOptions(jointNames);
-            int dropdownIndex = 0;
-            slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnob>().value;
-            sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
-
-            dropdown.onValueChanged.AddListener(delegate {
-                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
-                dropdownIndex = dropdown.value;
-            });
-
-            slider.onValueChanged.AddListener(delegate {
-                knobs[dropdownIndex].GetComponentInParent<XRKnob>().value = slider.value;
-                sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
-            });
-
-        } 
+            createTarget(reparentingList[reparentingList.Count - 1].Key);
+            urdfModel.AddComponent<SetupIK>(); 
+            
+            #if UNITY_EDITOR
+            savePrefab(urdfModel.name);
+            #endif
+        }
+        else
+        {
+            Debug.LogError("Failed to load the Robot UI.");
+        }
     }
 
     void TraverseAndModify(GameObject obj)
@@ -236,6 +198,56 @@ public class ProcessUrdf : MonoBehaviour
 
     }
 
+    async Task LoadRobotUIAsync() {
+        AsyncOperationHandle<GameObject> asyncRobotUI = Addressables.LoadAssetAsync<GameObject>(robotUIPath);
+        await asyncRobotUI.Task;
+
+        if (asyncRobotUI.Status == AsyncOperationStatus.Succeeded)
+        {
+            GameObject robotUI = asyncRobotUI.Result;
+            robotUI = Instantiate(robotUI, urdfModel.transform);
+            GameObject contentGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content");
+
+            // button
+            GameObject buttonObject = contentGameObject.GetNamedChild("List Item Button").GetNamedChild("Text Poke Button");
+            Button button = buttonObject.GetComponent<Button>();
+            TextMeshProUGUI buttonText = buttonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
+
+            button.onClick.AddListener(() => {
+                if (recordROS == true) {
+                    recordROS = false;
+                    buttonText.text = "Start Recording";
+                } else {
+                    recordROS = true;
+                    buttonText.text = "Stop Recording";
+                }
+            });
+
+            // dropdown and slider
+            TMP_Dropdown dropdown = contentGameObject.GetNamedChild("List Item Dropdown").GetNamedChild("Dropdown").GetComponent<TMP_Dropdown>();
+            Slider slider = contentGameObject.GetNamedChild("List Item Slider").GetNamedChild("MinMax Slider").GetComponent<Slider>();
+            TextMeshProUGUI sliderText = slider.gameObject.GetNamedChild("Value Text").GetComponent<TextMeshProUGUI>();
+
+            dropdown.AddOptions(jointNames);
+            int dropdownIndex = 0;
+            slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnob>().value;
+            sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
+
+            dropdown.onValueChanged.AddListener(delegate {
+                dropdownIndex = dropdown.value;
+                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
+            });
+
+            slider.onValueChanged.AddListener(delegate {
+                knobs[dropdownIndex].GetComponentInParent<XRKnob>().value = slider.value;
+                sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
+            });
+
+            robotUI.transform.SetParent(urdfModel.transform);
+
+        } 
+    }
+
 
     void savePrefab(string name)
     {
@@ -245,34 +257,4 @@ public class ProcessUrdf : MonoBehaviour
         GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
         #endif
     }
-
-    void sendJointPositionMessage() {
-        if (recordROS) {
-            for (int i = 0; i < knobs.Count; i++) {
-                jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
-            }
-
-            JointTrajectoryMsg jointTrajectory = new JointTrajectoryMsg();
-
-            HeaderMsg header = new HeaderMsg
-            {
-                frame_id = urdfModel.name,
-                stamp = new TimeMsg {
-                    sec = (int)Time.time,
-                    nanosec = (uint)((Time.time - (int)Time.time) * 1e9)
-                }
-            };
-            jointTrajectory.header = header;
-            jointTrajectory.joint_names = jointNames.ToArray();
-
-            JointTrajectoryPointMsg jointTrajectoryPoint = new JointTrajectoryPointMsg
-            {
-                positions = jointPositions.ToArray(), 
-                time_from_start = new DurationMsg(1, 0),
-            };
-            jointTrajectory.points = new JointTrajectoryPointMsg[] { jointTrajectoryPoint };
-            ros.Publish(topicName, jointTrajectory);
-        }
-    }
-
 }
