@@ -105,16 +105,16 @@ public class ProcessUrdf : MonoBehaviour
 
             dropdown.AddOptions(jointNames);
             int dropdownIndex = 0;
-            slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnob>().value;
+            slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value;
             sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
 
             dropdown.onValueChanged.AddListener(delegate {
                 dropdownIndex = dropdown.value;
-                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnob>().value;
+                slider.value = knobs[dropdown.value].GetComponentInParent<XRKnobAlt>().value;
             });
 
             slider.onValueChanged.AddListener(delegate {
-                knobs[dropdownIndex].GetComponentInParent<XRKnob>().value = slider.value;
+                knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value = slider.value;
                 sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
             });
 
@@ -202,8 +202,8 @@ public class ProcessUrdf : MonoBehaviour
             ccdikJoints.Add(ccdik);
 
 
-            // // Add the XRKnob
-            XRKnob knob = knobParent.AddComponent<XRKnob>();
+            // // Add the XRKnobAlt
+            XRKnobAlt knob = knobParent.AddComponent<XRKnobAlt>();
             knob.clampedMotion = clampedMotionList[i];
             knob.minAngle = jointLimits[i].Item1;
             knob.maxAngle = jointLimits[i].Item2;
@@ -233,7 +233,7 @@ public class ProcessUrdf : MonoBehaviour
         }
     }
 
-    void createInteractionAffordance(GameObject child, XRKnob knob, GameObject knobParent)
+    void createInteractionAffordance(GameObject child, XRKnobAlt knob, GameObject knobParent)
     {
         // create interaction affordance
             GameObject knobAffordance = new GameObject("KnobAffordance");

@@ -35,7 +35,7 @@ public class SetupIK : MonoBehaviour
     {
     
         if (obj == null) return;
-        if(obj.GetComponent<XRKnob>() != null)
+        if(obj.GetComponent<XRKnobAlt>() != null)
         {
             lastChild = obj.gameObject;
         }
