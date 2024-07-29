@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Robotics.UrdfImporter;
 using Unity.VRTemplate;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEditor;
