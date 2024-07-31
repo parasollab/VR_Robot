@@ -29,7 +29,22 @@ public class SetupUI : MonoBehaviour
     void Start() {
         if (ros == null) ros = ROSConnection.GetOrCreateInstance();
         ros.RegisterPublisher<JointTrajectoryMsg>(topicName);
+        StartCoroutine(InitializeAsync()); 
         InvokeRepeating("sendJointPositionMessage", 1.0f, 1.0f); 
+    }
+
+    IEnumerator InitializeAsync() {
+        Task uiTask = LoadUI();
+        yield return new WaitUntil(() => uiTask.IsCompleted);
+
+        if (uiTask.IsCompletedSuccessfully)
+        {    
+            Debug.Log("Completed.");
+        }
+        else
+        {
+            Debug.LogError("Failed to load the Robot UI.");
+        }
     }
 
     public async Task LoadUI() {
@@ -76,6 +91,7 @@ public class SetupUI : MonoBehaviour
                 knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value = slider.value;
                 sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
             });
+            Debug.Log("async operations done");
 
         } 
     }

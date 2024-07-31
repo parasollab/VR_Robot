@@ -61,26 +61,26 @@ public class ProcessUrdf : MonoBehaviour
             SetupUI ui = urdfModel.GetComponent<SetupUI>();
             ui.ros = ros; ui.topicName = topicName; ui.knobs = knobs; ui.jointPositions = jointPositions; ui.jointNames = jointNames;
 
-            StartCoroutine(InitializeAsync()); 
+            // StartCoroutine(InitializeAsync()); 
         }
     }
 
-    IEnumerator InitializeAsync() {
-        SetupUI ui = urdfModel.GetComponent<SetupUI>();
-        Task uiTask = ui.LoadUI();
-        yield return new WaitUntil(() => uiTask.IsCompleted);
+    // IEnumerator InitializeAsync() {
+    //     SetupUI ui = urdfModel.GetComponent<SetupUI>();
+    //     Task uiTask = ui.LoadUI();
+    //     yield return new WaitUntil(() => uiTask.IsCompleted);
 
-        if (uiTask.IsCompletedSuccessfully)
-        {    
-            #if UNITY_EDITOR
-            savePrefab(urdfModel.name);
-            #endif
-        }
-        else
-        {
-            Debug.LogError("Failed to load the Robot UI.");
-        }
-    }
+    //     if (uiTask.IsCompletedSuccessfully)
+    //     {    
+    //         #if UNITY_EDITOR
+    //         savePrefab(urdfModel.name);
+    //         #endif
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("Failed to load the Robot UI.");
+    //     }
+    // }
 
     void TraverseAndModify(GameObject obj)
     {
