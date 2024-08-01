@@ -63,6 +63,7 @@ public class SetupUI : MonoBehaviour
             TextMeshProUGUI buttonText = buttonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
             button.onClick.AddListener(() => {
+                Debug.Log("clicc");
                 if (recordROS == true) {
                     recordROS = false;
                     buttonText.text = "Start Recording";
