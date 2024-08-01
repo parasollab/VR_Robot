@@ -27,6 +27,7 @@ public class ProcessUrdf : MonoBehaviour
     public GameObject urdfModel;  // Reference to the base of the robot's URDF model
 
     public GameObject target;  // Reference to the target object for the CCDIK
+    public GameObject robotUI;  // Reference to the robot's UI prefab
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
     private List<Tuple<float, float>> jointLimits = new List<Tuple<float, float>>();
@@ -59,9 +60,10 @@ public class ProcessUrdf : MonoBehaviour
             createTarget(reparentingList[reparentingList.Count - 1].Key);
             urdfModel.AddComponent<SetupIK>();
             
+
             urdfModel.AddComponent<SetupUI>();
             SetupUI ui = urdfModel.GetComponent<SetupUI>();
-            ui.ros = ros; ui.topicName = topicName; ui.knobs = knobs; ui.jointPositions = jointPositions; ui.jointNames = jointNames;
+            ui.ros = ros; ui.topicName = topicName; ui.knobs = knobs; ui.jointPositions = jointPositions; ui.jointNames = jointNames; ui.robotUI = robotUI;
 
             #if UNITY_EDITOR
             savePrefab(urdfModel.name);
@@ -162,7 +164,6 @@ public class ProcessUrdf : MonoBehaviour
             knob.handle = child.transform;
             
             createInteractionAffordance(child, knob, knobParent);
-            Debug.Log("Teste");
 
             // Use .Prepend to reverse the joint order
             knobs.Add(child.transform);
