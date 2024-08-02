@@ -25,11 +25,27 @@ To allow the imported robot to be controlled in VR, the `Process URDF` script mu
 - Drag the `Affordance Theme` from the `Prefabs` folder into the appropriate field.
 - Set the **Save as Prefab** checkbox to `true` to allow the robot to be saved as a Prefab in the `Prefabs` folder.
 
+## ROS Connection Setup
+
+Follow the instructions [here](https://github.com/parasollab/hri_ws/tree/main) to set up the ROS endpoint. Then, follow the instructions [here](https://github.com/parasollab/hri_ws/tree/main/src/trajectory_utils_) to run the ROS joint_trajectory subscriber node. 
+
+For the Unity side:
+- Add the `ROS Connection` script onto a GameObject.
+- Enter the IP address of the the computer running the ROS node into the `Ros IP Address` field (ROS Connection).
+- Make sure the port is the same one that the node is running one.
+- Drag the GameObject containing the `ROS Connection` script into the `Ros` field (Process Urdf).
+- Make sure your headset is connected to the same wifi network as the computer running the ROS node.
+
+Once everything is set up, it should look something like this:
+<img src="image/readme/finalsetup.png" alt="Setup example">
+
+
 ### Components Explanation
 
 - **Target Prefab:** The white sphere seen on the robot's end effector, allowing for inverse kinematics control.
 - **Robot Options Prefab:** The user menu enabling ROS joint recordings and control of specific joint angles via sliders.
 - **Affordance Theme:** Highlights the joints being manipulated by the user and can be found in the `Prefabs` folder.
+- **Ros:** Allows for joint trajectory message sending from the headset to the ROS node.
 
 ## AR Project Setup
 
