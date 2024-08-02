@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.VRTemplate;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
