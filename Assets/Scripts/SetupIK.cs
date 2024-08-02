@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEditor;
 using Unity.VisualScripting;
+using Unity.XR.CoreUtils;
 
 
 public class SetupIK : MonoBehaviour
@@ -60,7 +61,7 @@ public class SetupIK : MonoBehaviour
         CCDIK ccdIK = lastChild.AddComponent<CCDIK>();
         
         ccdIK.joints = ccdikJoints.ToArray();
-        ccdIK.Tooltip = lastChild.transform;
+        ccdIK.Tooltip = findRealLastChild(lastChild.transform);
         ccdIK.Target = target.transform;
 
         // xr events
@@ -74,5 +75,14 @@ public class SetupIK : MonoBehaviour
         grabInteractable.selectExited.AddListener((SelectExitEventArgs interactor) => {
             ccdIK.active = false;
         });
+    }
+
+    Transform findRealLastChild(Transform lastChild) {
+        foreach (Transform child in lastChild) {
+            if (child.gameObject.GetNamedChild("Collisions") != null && child.gameObject.GetNamedChild("Visuals") != null) {
+                return findRealLastChild(child);
+            }
+        }
+        return lastChild;
     }
 }

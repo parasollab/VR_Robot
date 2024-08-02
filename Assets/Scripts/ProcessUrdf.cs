@@ -9,6 +9,7 @@ using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering;
 using UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Theme.Primitives;
+using Unity.XR.CoreUtils;
 
 public class ProcessUrdf : MonoBehaviour
 {
@@ -90,6 +91,11 @@ public class ProcessUrdf : MonoBehaviour
             jointCount++;
             bool isClampedMotion = articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit < 360;
             Tuple<float, float> jointLimit = new Tuple<float, float>(articulationBody.xDrive.lowerLimit, articulationBody.xDrive.upperLimit);
+
+            if (articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit == 0 && articulationBody.jointType == ArticulationJointType.RevoluteJoint) {
+                isClampedMotion = false;
+                jointLimit = new Tuple<float, float>(0, 360);
+            }
             
             DestroyImmediate(articulationBody);
 
@@ -200,14 +206,25 @@ public class ProcessUrdf : MonoBehaviour
 
     void createTarget(GameObject lastChild)
     {
+        GameObject realLastChild = findRealLastChild(lastChild);
         // create target object for the last child
-        GameObject target = Instantiate(this.target, lastChild.transform.position, lastChild.transform.rotation);
+        GameObject target = Instantiate(this.target, realLastChild.transform.position, realLastChild.transform.rotation);
         target.name = "target";
-        target.transform.SetParent(lastChild.transform);
+        target.transform.SetParent(realLastChild.transform);
         target.transform.localPosition = Vector3.zero;
         target.transform.localRotation = Quaternion.identity;
 
     }
+
+    GameObject findRealLastChild(GameObject lastChild) {
+        foreach (Transform child in lastChild.transform) {
+            if (child.gameObject.GetNamedChild("Collisions") != null && child.gameObject.GetNamedChild("Visuals") != null) {
+                return findRealLastChild(child.gameObject);
+            }
+        }
+        return lastChild;
+    }
+
 
     void savePrefab(string name)
     {
