@@ -38,7 +38,7 @@ public class SetupGrabBase : MonoBehaviour
         RaycastHit hit;
         Vector3 rayOrigin = grabJoint.transform.position;
         Vector3 rayDirection = Vector3.down;
-        float rayLength = 100f; // Adjust the length based on your needs
+        float rayLength = 100f; // arbitrary length
 
 
         if (Physics.Raycast(rayOrigin, rayDirection, out hit, rayLength))

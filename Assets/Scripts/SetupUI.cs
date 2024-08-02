@@ -30,7 +30,7 @@ public class SetupUI : MonoBehaviour
 
     void LoadUI() {
         if(robotUI == null) {
-            Debug.Log("error loading UI");
+            Debug.LogError("error loading UI");
         }
         robotUI = Instantiate(robotUI, transform);
         GameObject contentGameObject = robotUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content");
@@ -41,7 +41,6 @@ public class SetupUI : MonoBehaviour
         TextMeshProUGUI buttonText = buttonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
         button.onClick.AddListener(() => {
-            Debug.Log("clicc");
             if (recordROS == true) {
                 recordROS = false;
                 buttonText.text = "Start Recording";
