@@ -39,17 +39,17 @@ To visualize the exported robot Prefab in an augmented reality scene, export the
 
 Right-click the prefab in the Assets explorer and then click **Export Package**.
 
-<img src="image/readme/1722651184856.png" alt="Exporting the robot" width="400" height="150">
+<img src="image/readme/1722651184856.png" alt="Exporting the robot" width="400" height="400">
 
 ### Create a Mixed Reality Project
 
 Create a new mixed reality project using Unity's MR template.
 
-<img src="image/readme/1722651265641.png" alt="Create new MR project" width="300" height="150">
+<img src="image/readme/1722651265641.png" alt="Create new MR project" width="500" height="250">
 
 Drag the imported robot prefab into the Sample Scene, which can be found at `Assets/Scenes`.
 
-<img src="image/readme/1722651470122.png" alt="Drag the prefab" width="300" height="150">
+<img src="image/readme/1722651470122.png" alt="Drag the prefab" width="300" height="200"">
 
 Install the ROS-TCP-Connector package following the instructions at [Unity-Technologies/ROS-TCP-Connector](https://github.com/Unity-Technologies/ROS-TCP-Connector).
 
@@ -59,12 +59,12 @@ To do so, on the top bar select **File -> Build Settings**.
 
 Check if the Android Module is installed.
 
-<img src="image/readme/1722652489943.png" alt="Build Android" width="300" height="150">
+<img src="image/readme/1722652489943.png" alt="Build Android" width="550" height="250">
 
 Install it if needed.
 
 Click on **Switch Platform** to allow building to Android. Select the device you wish to build the application for in the **Run Device** field:
 
-<img src="image/readme/1722653119511.png" alt="Run Device" width="300" height="100">
+<img src="image/readme/1722653119511.png" alt="Run Device" width="550" height="200">
 
 Finally, click on **Build and Run** the application.
