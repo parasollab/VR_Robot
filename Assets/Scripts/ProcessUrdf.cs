@@ -44,17 +44,16 @@ public class ProcessUrdf : MonoBehaviour
     private List<double> jointPositions = new List<double>();
 
     private List<String> jointNames = new List<String>();
-
-
     public bool saveAsPrefab = false;
-
+    private int jointCount = 0;
+    private GameObject grabJoint;
     void Awake()
     {
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
             reParent();
-            
+            GrabBaseSetup(grabJoint);
             createTarget(reparentingList[reparentingList.Count - 1].Key);
             urdfModel.AddComponent<SetupIK>();
             urdfModel.AddComponent<SetupUI>();
@@ -92,9 +91,10 @@ public class ProcessUrdf : MonoBehaviour
         }
 
         var articulationBody = obj.GetComponent<ArticulationBody>();
+
         if (articulationBody != null)
         {
-
+            jointCount++;
             bool isClampedMotion = articulationBody.xDrive.upperLimit - articulationBody.xDrive.lowerLimit < 360;
             Tuple<float, float> jointLimit = new Tuple<float, float>(articulationBody.xDrive.lowerLimit, articulationBody.xDrive.upperLimit);
             
@@ -118,9 +118,11 @@ public class ProcessUrdf : MonoBehaviour
                 clampedMotionList.Add(isClampedMotion);
                 jointLimits.Add(jointLimit);
             }
+            if(jointCount == 2)  grabJoint = obj;
 
         }
     }
+
 
     void reParent()
     {
@@ -177,6 +179,21 @@ public class ProcessUrdf : MonoBehaviour
                 knob.colliders.Add(meshCollider);
             }
         }
+    }
+
+    void GrabBaseSetup(GameObject obj)
+    {
+        Rigidbody baseGrabRb = obj.GetComponent<Rigidbody>();
+        baseGrabRb.isKinematic = true;
+        baseGrabRb.useGravity = false;
+        XRGrabInteractable grab = obj.AddComponent<XRGrabInteractable>();
+
+        
+        grab.colliders.Clear();
+
+        MeshCollider meshCollider = obj.GetComponentInChildren<MeshCollider>();
+        grab.colliders.Add(meshCollider);
+                
     }
 
     void createInteractionAffordance(GameObject child, XRKnobAlt knob, GameObject knobParent)
