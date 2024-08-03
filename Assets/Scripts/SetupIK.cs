@@ -1,11 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Robotics.UrdfImporter;
 using Unity.VRTemplate;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEditor;
-using Unity.VisualScripting;
 
 
 public class SetupIK : MonoBehaviour
