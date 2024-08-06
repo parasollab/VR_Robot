@@ -17,17 +17,23 @@ public class SetupUI : MonoBehaviour
     public ROSConnection ros;
     public GameObject queryUI;
     public GameObject robotUI;
+    public GameObject mirrorUI;
     public String trajTopicName = "/joint_trajectory";
     public String queryTopicName = "/joint_query";
+    public String inputStateTopicName = "/physical_joint_states";
+    public String outputStateTopicName = "/virtual_joint_states";
     public List<Transform> knobs;
     public List<double> jointPositions;
     public List<String> jointNames;
     public float recordInterval = 0.5f;
+    public float publishStateInterval = 0.2f;
 
     private bool recordROS = false;
     private List<double> startPositions;
     private List<double> goalPositions;
     private List<JointTrajectoryPointMsg> jointTrajectoryPoints = new List<JointTrajectoryPointMsg>();
+    private bool mirrorInputState = false;
+    private bool publishState = true;
 
     private GameObject startButtonObject;
     private GameObject goalButtonObject;
@@ -36,15 +42,89 @@ public class SetupUI : MonoBehaviour
     private GameObject recordButtonObject;
     private int recordStartTime;
 
+    private GameObject mirrorButtonObject;
+    private GameObject publishStateButtonObject;
+
 
     void Start() {
         Debug.Log("SetupUI Start");
         if (ros == null) ros = ROSConnection.GetOrCreateInstance();
         ros.RegisterPublisher<JointQueryMsg>(queryTopicName);
         ros.RegisterPublisher<JointTrajectoryMsg>(trajTopicName);
+        ros.RegisterPublisher<JointStateMsg>(outputStateTopicName);
+        ros.Subscribe<JointStateMsg>(inputStateTopicName, MirrorStateCallback);
+
         LoadQueryInterface();
         LoadUI();
-        InvokeRepeating("addJointPosition", 1.0f, recordInterval); 
+        LoadMirrorInterface();
+    }
+
+    void LoadMirrorInterface() {
+        Debug.Log("LoadMirrorInterface");
+        if(mirrorUI == null) {
+            Debug.LogError("error loading UI");
+        }
+        mirrorUI = Instantiate(mirrorUI, transform);
+        GameObject contentGameObject = mirrorUI.GetNamedChild("Spatial Panel Scroll").GetNamedChild("Scroll View").GetNamedChild("Viewport").GetNamedChild("Content");
+
+        // Mirror input button
+        mirrorButtonObject = contentGameObject.GetNamedChild("Mirror Input Button").GetNamedChild("Text Poke Button");
+        Button mirrorButton = mirrorButtonObject.GetComponent<Button>();
+        TextMeshProUGUI mirrorButtonText = mirrorButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
+
+        mirrorButton.onClick.AddListener(() => {
+            Debug.Log("mirrorButton.onClick");
+            if (mirrorInputState) {
+                mirrorInputState = false;
+                mirrorButtonText.text = "Start Mirroring";
+            } else {
+                mirrorInputState = true;
+                mirrorButtonText.text = "Stop Mirroring";
+            }
+        });
+
+        // Publish state button
+        publishStateButtonObject = contentGameObject.GetNamedChild("Publish State Button").GetNamedChild("Text Poke Button");
+        Button publishStateButton = publishStateButtonObject.GetComponent<Button>();
+        TextMeshProUGUI publishStateButtonText = publishStateButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
+
+        publishStateButton.onClick.AddListener(() => {
+            Debug.Log("publishStateButton.onClick");
+            if (publishState) {
+                publishState = false;
+                publishStateButtonText.text = "Start Publishing";
+            } else {
+                publishState = true;
+                publishStateButtonText.text = "Stop Publishing";
+            }
+        });
+
+        InvokeRepeating("PublishState", 1.0f, publishStateInterval);
+    }
+
+    void MirrorStateCallback(JointStateMsg jointState) {
+        if (mirrorInputState) {
+            for (int i = 0; i < knobs.Count; i++) {
+                knobs[i].transform.localRotation = Quaternion.Euler(0, (float)jointState.position[i], 0);
+            }
+        }
+    }
+
+    void PublishState() {
+        if (publishState) {
+            // Update the joint positions
+            for (int i = 0; i < knobs.Count; i++) {
+                jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
+            }
+
+            // Publish the joint state message
+            JointStateMsg jointState = new JointStateMsg
+            {
+                name = jointNames.ToArray(),
+                position = jointPositions.ToArray()
+            };
+            ros.Publish(outputStateTopicName, jointState);
+        }
     }
 
     void LoadQueryInterface() {
@@ -192,6 +272,8 @@ public class SetupUI : MonoBehaviour
             knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value = slider.value;
             sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
         });
+
+        InvokeRepeating("addJointPosition", 1.0f, recordInterval); 
     }
 
     void addJointPosition() {

@@ -2780,6 +2780,7 @@ MonoBehaviour:
   target: {fileID: 6876262152510213598, guid: bf8661b5e066f2b4cad89838f27f3f35, type: 3}
   queryUI: {fileID: 3372437552170920940, guid: 1cbd6cd9159c74265a97de93ec63b8d5, type: 3}
   robotUI: {fileID: 3372437552170920940, guid: dc1c6d2235afc3d4ba504f1671dfc073, type: 3}
+  mirrorUI: {fileID: 3372437552170920940, guid: 73b3bb653bc2d4f70b5700d0c4485148, type: 3}
   affordanceThemeDatum:
     m_UseConstant: 0
     m_ConstantValue:
@@ -2838,6 +2839,8 @@ MonoBehaviour:
   ros: {fileID: 0}
   queryTopic: /joint_query
   trajectoryTopic: /joint_trajectory
+  mirrorInputTopic: /physical_joint_states
+  stateOutputTopic: /virtual_joint_states
   saveAsPrefab: 1
 --- !u!114 &857518842
 MonoBehaviour:
@@ -3115,6 +3118,10 @@ PrefabInstance:
     - target: {fileID: 1000011928778752, guid: bac85bcbcdc58924f840d203376147c2, type: 3}
       propertyPath: m_Name
       value: DebugPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1000011928778752, guid: bac85bcbcdc58924f840d203376147c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224000010550048884, guid: bac85bcbcdc58924f840d203376147c2, type: 3}
       propertyPath: m_Pivot.x
@@ -5420,7 +5427,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.1715e-41, y: 1e-45, z: 1.02e-43, w: 1e-44}
+  m_BoundingSphereOverride: {x: 1e-45, y: 2.5922867e-37, z: 1.02e-43, w: 7.1e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0

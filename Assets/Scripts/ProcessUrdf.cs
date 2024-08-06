@@ -18,6 +18,7 @@ public class ProcessUrdf : MonoBehaviour
     public GameObject target;  // Reference to the target object for the CCDIK
     public GameObject queryUI;  // Reference to the query UI prefab
     public GameObject robotUI;  // Reference to the robot's UI prefab
+    public GameObject mirrorUI;
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
     private List<Tuple<float, float>> jointLimits = new List<Tuple<float, float>>();
@@ -31,6 +32,8 @@ public class ProcessUrdf : MonoBehaviour
     public ROSConnection ros;
     public string queryTopic = "/joint_query";
     public string trajectoryTopic = "/joint_trajectory";
+    public string mirrorInputTopic = "/physical_joint_states";
+    public string stateOutputTopic = "/virtual_joint_states";
     protected List<Transform> knobs = new List<Transform>();
 
     private List<double> jointPositions = new List<double>();
@@ -58,11 +61,14 @@ public class ProcessUrdf : MonoBehaviour
             ui.ros = ros;
             ui.trajTopicName = trajectoryTopic;
             ui.queryTopicName = queryTopic;
+            ui.inputStateTopicName = mirrorInputTopic;
+            ui.outputStateTopicName = stateOutputTopic;
             ui.knobs = knobs;
             ui.jointPositions = jointPositions;
             ui.jointNames = jointNames;
             ui.robotUI = robotUI;
             ui.queryUI = queryUI;
+            ui.mirrorUI = mirrorUI;
             Debug.Log("SetupUI done");
 
             #if UNITY_EDITOR
@@ -245,6 +251,4 @@ public class ProcessUrdf : MonoBehaviour
         GameObject prefab = PrefabUtility.SaveAsPrefabAssetAndConnect(urdfModel, prefabPath, InteractionMode.AutomatedAction);
         #endif
     }
-
-
 }
