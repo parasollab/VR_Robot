@@ -6,6 +6,7 @@ TagManager:
   tags:
   - robot
   - Anchor
+  - obstacle
   layers:
   - Default
   - TransparentFX
