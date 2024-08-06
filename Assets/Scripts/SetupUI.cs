@@ -117,10 +117,6 @@ public class SetupUI : MonoBehaviour
             // Enable the query send button
             Button queryButton = queryButtonObject.GetComponent<Button>();
             queryButton.interactable = true;
-
-            // Also enable the record button
-            Button recordButton = recordButtonObject.GetComponent<Button>();
-            recordButton.interactable = true;
         }
     }
 
@@ -145,6 +141,10 @@ public class SetupUI : MonoBehaviour
             goal = goal
         };
         ros.Publish(queryTopicName, jointQuery);
+
+        // Also enable the record button
+        Button recordButton = recordButtonObject.GetComponent<Button>();
+        recordButton.interactable = true;
     }
 
     void LoadUI() {
