@@ -16,6 +16,7 @@ public class ProcessUrdf : MonoBehaviour
     public GameObject urdfModel;  // Reference to the base of the robot's URDF model
 
     public GameObject target;  // Reference to the target object for the CCDIK
+    public GameObject queryUI;  // Reference to the query UI prefab
     public GameObject robotUI;  // Reference to the robot's UI prefab
     private List<KeyValuePair<GameObject, GameObject>> reparentingList = new List<KeyValuePair<GameObject, GameObject>>();
 
@@ -28,7 +29,8 @@ public class ProcessUrdf : MonoBehaviour
 
     // variables for sending messages to ROS
     public ROSConnection ros;
-    private string topicName = "/joint_trajectory";
+    public string queryTopic = "/joint_query";
+    public string trajectoryTopic = "/joint_trajectory";
     protected List<Transform> knobs = new List<Transform>();
 
     private List<double> jointPositions = new List<double>();
@@ -50,9 +52,18 @@ public class ProcessUrdf : MonoBehaviour
             urdfModel.AddComponent<SetupIK>();
             
 
+            Debug.Log("SetupUI Start");
             urdfModel.AddComponent<SetupUI>();
             SetupUI ui = urdfModel.GetComponent<SetupUI>();
-            ui.ros = ros; ui.topicName = topicName; ui.knobs = knobs; ui.jointPositions = jointPositions; ui.jointNames = jointNames; ui.robotUI = robotUI;
+            ui.ros = ros;
+            ui.trajTopicName = trajectoryTopic;
+            ui.queryTopicName = queryTopic;
+            ui.knobs = knobs;
+            ui.jointPositions = jointPositions;
+            ui.jointNames = jointNames;
+            ui.robotUI = robotUI;
+            ui.queryUI = queryUI;
+            Debug.Log("SetupUI done");
 
             #if UNITY_EDITOR
             savePrefab(urdfModel.name);
