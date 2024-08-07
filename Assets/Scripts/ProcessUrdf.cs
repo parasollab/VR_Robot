@@ -32,8 +32,8 @@ public class ProcessUrdf : MonoBehaviour
     public ROSConnection ros;
     public string queryTopic = "/joint_query";
     public string trajectoryTopic = "/joint_trajectory";
-    public string mirrorInputTopic = "/physical_joint_states";
-    public string stateOutputTopic = "/virtual_joint_states";
+    public string mirrorInputTopic = "/physical_joint_state";
+    public string stateOutputTopic = "/virtual_joint_state";
     protected List<Transform> knobs = new List<Transform>();
 
     private List<double> jointPositions = new List<double>();
@@ -42,8 +42,10 @@ public class ProcessUrdf : MonoBehaviour
     public bool saveAsPrefab = false;
     private int jointCount = 0;
     private GameObject grabJoint;
+
     void Awake()
     {
+        Debug.Log("ProcessUrdf Awake");
         if (urdfModel != null)
         {
             TraverseAndModify(urdfModel);
@@ -149,6 +151,7 @@ public class ProcessUrdf : MonoBehaviour
             GameObject child = pair.Key;
             GameObject knobParent = pair.Value;
             jointNames.Add(child.name);
+            Debug.Log("Joint Name: " + child.name);
 
             knobParent.transform.position = child.transform.position;
             knobParent.transform.rotation = child.transform.rotation;

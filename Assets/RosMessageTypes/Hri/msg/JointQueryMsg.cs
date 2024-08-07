@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Text;
 using Unity.Robotics.ROSTCPConnector.MessageGeneration;
 
-namespace RosMessageTypes.Assets
+namespace RosMessageTypes.Hri
 {
     [Serializable]
     public class JointQueryMsg : Message
     {
-        public const string k_RosMessageName = "Assets/JointQuery";
+        public const string k_RosMessageName = "hri_msgs/JointQuery";
         public override string RosMessageName => k_RosMessageName;
 
         //  JointQuery.msg

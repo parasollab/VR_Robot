@@ -935,7 +935,7 @@ GameObject:
   - component: {fileID: 176238544}
   m_Layer: 0
   m_Name: tablebottom
-  m_TagString: Untagged
+  m_TagString: obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2741,7 +2741,6 @@ GameObject:
   m_Component:
   - component: {fileID: 857518840}
   - component: {fileID: 857518841}
-  - component: {fileID: 857518842}
   m_Layer: 0
   m_Name: urdfParser
   m_TagString: Untagged
@@ -2839,31 +2838,9 @@ MonoBehaviour:
   ros: {fileID: 0}
   queryTopic: /joint_query
   trajectoryTopic: /joint_trajectory
-  mirrorInputTopic: /physical_joint_states
-  stateOutputTopic: /virtual_joint_states
+  mirrorInputTopic: /physical_joint_state
+  stateOutputTopic: /virtual_joint_state
   saveAsPrefab: 1
---- !u!114 &857518842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 857518839}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7acef0b79454c9b4dae3f8139bc4ba77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_RosIPAddress: 192.168.1.13
-  m_RosPort: 10000
-  m_ConnectOnStart: 1
-  m_KeepaliveTime: 1
-  m_NetworkTimeoutSeconds: 2
-  m_SleepTimeSeconds: 0.01
-  m_ShowHUD: 1
-  m_TFTopics:
-  - /tf
-  listenForTFMessages: 1
 --- !u!1 &880238512
 GameObject:
   m_ObjectHideFlags: 0
@@ -3121,7 +3098,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1000011928778752, guid: bac85bcbcdc58924f840d203376147c2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224000010550048884, guid: bac85bcbcdc58924f840d203376147c2, type: 3}
       propertyPath: m_Pivot.x
@@ -4370,6 +4347,7 @@ MonoBehaviour:
   samplingResolution: 0.08
   includeTags:
   - obstacle
+  publishInterval: 5
 --- !u!4 &1398364152
 Transform:
   m_ObjectHideFlags: 0
@@ -5427,7 +5405,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1e-45, y: 2.5922867e-37, z: 1.02e-43, w: 7.1e-44}
+  m_BoundingSphereOverride: {x: 0, y: 1e-45, z: 1.02e-43, w: 1.3e-44}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0

@@ -11,6 +11,7 @@ public class PointCloudPublisher : MonoBehaviour
     public string topicName = "/point_cloud";
     public float samplingResolution = 0.1f; // Distance between sampled points
     public string[] includeTags; // Tags of objects to include in the point cloud
+    public float publishInterval = 5.0f; // Time interval between publishing point clouds
 
     private byte[] cachedPointCloudData;
     private uint pointCount;
@@ -21,12 +22,10 @@ public class PointCloudPublisher : MonoBehaviour
         ros = ROSConnection.GetOrCreateInstance();
         Debug.Log("ROSConnection initialized");
         ros.RegisterPublisher<PointCloud2Msg>(topicName);
-        Debug.Log("Publisher registered");
         CacheAndPublishPointCloud();
-        Debug.Log("Point cloud published");
 
         // Publish point cloud every 5 seconds
-        InvokeRepeating("PublishCachedPointCloud", 5.0f, 5.0f);
+        InvokeRepeating("PublishCachedPointCloud", 5.0f, publishInterval);
     }
 
     void CacheAndPublishPointCloud()
@@ -51,8 +50,6 @@ public class PointCloudPublisher : MonoBehaviour
                         Vector3 v0 = meshTransform.TransformPoint(mesh.vertices[mesh.triangles[i]]);
                         Vector3 v1 = meshTransform.TransformPoint(mesh.vertices[mesh.triangles[i + 1]]);
                         Vector3 v2 = meshTransform.TransformPoint(mesh.vertices[mesh.triangles[i + 2]]);
-
-                        Debug.Log($"Transformed vertices: v0={v0}, v1={v1}, v2={v2}");
 
                         for (float u = 0; u < 1.0f; u += samplingResolution)
                         {
@@ -90,7 +87,7 @@ public class PointCloudPublisher : MonoBehaviour
 
     void PublishCachedPointCloud()
     {
-        Debug.Log("Publishing point cloud with " + pointCount + " points");
+        // Debug.Log("Publishing point cloud with " + pointCount + " points");
         List<PointFieldMsg> fields = new List<PointFieldMsg>
         {
             new PointFieldMsg { name = "x", offset = 0, datatype = PointFieldMsg.FLOAT32, count = 1 },
@@ -118,8 +115,6 @@ public class PointCloudPublisher : MonoBehaviour
             data = cachedPointCloudData
         };
 
-        Debug.Log("Publishing point cloud");
         ros.Publish(topicName, pointCloud);
-        Debug.Log("Point cloud published 0");
     }
 }

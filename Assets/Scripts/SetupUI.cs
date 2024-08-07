@@ -10,7 +10,7 @@ using RosMessageTypes.Trajectory;
 using RosMessageTypes.BuiltinInterfaces;
 using RosMessageTypes.Std;
 using RosMessageTypes.Sensor;
-using RosMessageTypes.Assets;
+using RosMessageTypes.Hri;
 
 public class SetupUI : MonoBehaviour
 {
@@ -20,8 +20,8 @@ public class SetupUI : MonoBehaviour
     public GameObject mirrorUI;
     public String trajTopicName = "/joint_trajectory";
     public String queryTopicName = "/joint_query";
-    public String inputStateTopicName = "/physical_joint_states";
-    public String outputStateTopicName = "/virtual_joint_states";
+    public String inputStateTopicName = "/physical_joint_state";
+    public String outputStateTopicName = "/virtual_joint_state";
     public List<Transform> knobs;
     public List<double> jointPositions;
     public List<String> jointNames;
