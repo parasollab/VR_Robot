@@ -1,3 +1,5 @@
+> For more extensive documentation, see [the wiki](https://github.com/parasollab/VR_Robot/wiki)!
+
 # Project Setup Instructions
 
 Clone the project and open it in Unity. All necessary packages should already be installed. The project was developed and tested for Unity Editor version 2022.3.37f1.
