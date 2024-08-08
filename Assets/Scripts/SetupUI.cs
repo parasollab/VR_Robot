@@ -11,7 +11,6 @@ using RosMessageTypes.BuiltinInterfaces;
 using RosMessageTypes.Std;
 using RosMessageTypes.Sensor;
 using RosMessageTypes.Hri;
-using UnityEngine.XR;
 
 public class SetupUI : MonoBehaviour
 {
