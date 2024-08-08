@@ -863,7 +863,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 00dc025bc6aa88645ad0114c7607fb6f, type: 2}
+  - {fileID: 2100000, guid: 7d70e716aefc241ee9a11675a0e68031, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1023,7 +1023,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7632678931fb0f34cb3d81b319e6fd15, type: 2}
+  - {fileID: 2100000, guid: 7d70e716aefc241ee9a11675a0e68031, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4347,7 +4347,7 @@ MonoBehaviour:
   samplingResolution: 0.08
   includeTags:
   - obstacle
-  publishInterval: 5
+  publishInterval: 30
 --- !u!4 &1398364152
 Transform:
   m_ObjectHideFlags: 0
@@ -5405,7 +5405,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 1e-45, z: 1.02e-43, w: 1.3e-44}
+  m_BoundingSphereOverride: {x: 1, y: 301.00003, z: 1.02e-43, w: 3e-45}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0

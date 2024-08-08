@@ -11,6 +11,7 @@ using RosMessageTypes.BuiltinInterfaces;
 using RosMessageTypes.Std;
 using RosMessageTypes.Sensor;
 using RosMessageTypes.Hri;
+using UnityEngine.XR;
 
 public class SetupUI : MonoBehaviour
 {
@@ -45,8 +46,12 @@ public class SetupUI : MonoBehaviour
     private GameObject mirrorButtonObject;
     private GameObject publishStateButtonObject;
 
+    private List<double> jointTorques;
+    private Dictionary<Transform, float> previousAngles = new Dictionary<Transform, float>();
+    private Dictionary<Transform, float> momentsOfInertia = new Dictionary<Transform, float>();
 
-    void Start() {
+    void Start()
+    {
         Debug.Log("SetupUI Start");
         if (ros == null) ros = ROSConnection.GetOrCreateInstance();
         ros.RegisterPublisher<JointQueryMsg>(queryTopicName);
@@ -57,11 +62,24 @@ public class SetupUI : MonoBehaviour
         LoadQueryInterface();
         LoadUI();
         LoadMirrorInterface();
+        
+        InitializeKnobData();
     }
 
-    void LoadMirrorInterface() {
+    void InitializeKnobData()
+    {
+        foreach (var knob in knobs)
+        {
+            previousAngles[knob] = knob.transform.localEulerAngles.y;
+            momentsOfInertia[knob] = 0.5f; // Example value, adjust as necessary
+        }
+    }
+
+    void LoadMirrorInterface()
+    {
         Debug.Log("LoadMirrorInterface");
-        if(mirrorUI == null) {
+        if (mirrorUI == null)
+        {
             Debug.LogError("error loading UI");
         }
         mirrorUI = Instantiate(mirrorUI, transform);
@@ -72,14 +90,16 @@ public class SetupUI : MonoBehaviour
         Button mirrorButton = mirrorButtonObject.GetComponent<Button>();
         TextMeshProUGUI mirrorButtonText = mirrorButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        mirrorButton.onClick.AddListener(() => {
+        mirrorButton.onClick.AddListener(() =>
+        {
             Debug.Log("mirrorButton.onClick");
-            if (mirrorInputState) {
-                mirrorInputState = false;
-                mirrorButtonText.text = "Start Mirroring";
-            } else {
-                mirrorInputState = true;
-                mirrorButtonText.text = "Stop Mirroring";
+            if (mirrorInputState)
+            {
+                stopMirroring();
+            }
+            else
+            {
+                startMirroring();
             }
         });
 
@@ -88,12 +108,16 @@ public class SetupUI : MonoBehaviour
         Button publishStateButton = publishStateButtonObject.GetComponent<Button>();
         TextMeshProUGUI publishStateButtonText = publishStateButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        publishStateButton.onClick.AddListener(() => {
+        publishStateButton.onClick.AddListener(() =>
+        {
             Debug.Log("publishStateButton.onClick");
-            if (publishState) {
+            if (publishState)
+            {
                 publishState = false;
                 publishStateButtonText.text = "Start Publishing";
-            } else {
+            }
+            else
+            {
                 publishState = true;
                 publishStateButtonText.text = "Stop Publishing";
             }
@@ -102,18 +126,38 @@ public class SetupUI : MonoBehaviour
         InvokeRepeating("PublishState", 1.0f, publishStateInterval);
     }
 
-    void MirrorStateCallback(JointStateMsg jointState) {
-        if (mirrorInputState) {
-            for (int i = 0; i < knobs.Count; i++) {
+    public void startMirroring()
+    {
+        mirrorInputState = true;
+        TextMeshProUGUI mirrorButtonText = mirrorButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
+        mirrorButtonText.text = "Stop Mirroring";
+    }
+
+    public void stopMirroring()
+    {
+        mirrorInputState = false;
+        TextMeshProUGUI mirrorButtonText = mirrorButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
+        mirrorButtonText.text = "Start Mirroring";
+    }
+
+    void MirrorStateCallback(JointStateMsg jointState)
+    {
+        if (mirrorInputState)
+        {
+            for (int i = 0; i < knobs.Count; i++)
+            {
                 knobs[i].transform.localRotation = Quaternion.Euler(0, (float)jointState.position[i], 0);
             }
         }
     }
 
-    void PublishState() {
-        if (publishState) {
+    void PublishState()
+    {
+        if (publishState)
+        {
             // Update the joint positions
-            for (int i = 0; i < knobs.Count; i++) {
+            for (int i = 0; i < knobs.Count; i++)
+            {
                 jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
             }
 
@@ -127,9 +171,11 @@ public class SetupUI : MonoBehaviour
         }
     }
 
-    void LoadQueryInterface() {
+    void LoadQueryInterface()
+    {
         Debug.Log("LoadQueryInterface");
-        if(queryUI == null) {
+        if (queryUI == null)
+        {
             Debug.LogError("error loading UI");
         }
         queryUI = Instantiate(queryUI, transform);
@@ -139,8 +185,8 @@ public class SetupUI : MonoBehaviour
         Button startButton = startButtonObject.GetComponent<Button>();
         TextMeshProUGUI startButtonText = startButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        startButton.onClick.AddListener(() => {
-            Debug.Log("startButton.onClick");
+        startButton.onClick.AddListener(() =>
+        {
             setStart();
             startButtonText.text = "Start is Set!";
         });
@@ -149,8 +195,8 @@ public class SetupUI : MonoBehaviour
         Button goalButton = goalButtonObject.GetComponent<Button>();
         TextMeshProUGUI goalButtonText = goalButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        goalButton.onClick.AddListener(() => {
-            Debug.Log("goalButton.onClick");
+        goalButton.onClick.AddListener(() =>
+        {
             setGoal();
             goalButtonText.text = "Goal is Set!";
         });
@@ -159,8 +205,8 @@ public class SetupUI : MonoBehaviour
         Button queryButton = queryButtonObject.GetComponent<Button>();
         TextMeshProUGUI queryButtonText = queryButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        queryButton.onClick.AddListener(() => {
-            Debug.Log("queryButton.onClick");
+        queryButton.onClick.AddListener(() =>
+        {
             sendQueryMessage();
             queryButtonText.text = "Query Sent!";
         });
@@ -169,29 +215,32 @@ public class SetupUI : MonoBehaviour
         queryButton.interactable = false;
     }
 
-    void setStart() {
+    void setStart()
+    {
         startPositions = new List<double>();
-        for (int i = 0; i < knobs.Count; i++) {
+        for (int i = 0; i < knobs.Count; i++)
+        {
             startPositions.Add(knobs[i].transform.localRotation.eulerAngles.y);
         }
-        Debug.Log("startPositions: " + startPositions);
 
         CheckQueryButton();
     }
 
-    void setGoal() {
+    void setGoal()
+    {
         goalPositions = new List<double>();
-        for (int i = 0; i < knobs.Count; i++) {
+        for (int i = 0; i < knobs.Count; i++)
+        {
             goalPositions.Add(knobs[i].transform.localRotation.eulerAngles.y);
         }
-        Debug.Log("goalPositions: " + goalPositions);
 
         CheckQueryButton();
     }
 
-    void CheckQueryButton() {
-        Debug.Log("CheckQueryButton");
-        if (startPositions != null && goalPositions != null) {
+    void CheckQueryButton()
+    {
+        if (startPositions != null && goalPositions != null)
+        {
             Debug.Log("Both start and goal are set");
 
             // Enable the query send button
@@ -200,9 +249,8 @@ public class SetupUI : MonoBehaviour
         }
     }
 
-    void sendQueryMessage() {
-        Debug.Log("sendQueryMessage");
-
+    void sendQueryMessage()
+    {
         JointStateMsg start = new JointStateMsg
         {
             name = jointNames.ToArray(),
@@ -227,8 +275,10 @@ public class SetupUI : MonoBehaviour
         recordButton.interactable = true;
     }
 
-    void LoadUI() {
-        if(robotUI == null) {
+    void LoadUI()
+    {
+        if (robotUI == null)
+        {
             Debug.LogError("error loading UI");
         }
         robotUI = Instantiate(robotUI, transform);
@@ -239,12 +289,16 @@ public class SetupUI : MonoBehaviour
         Button button = recordButtonObject.GetComponent<Button>();
         TextMeshProUGUI buttonText = recordButtonObject.GetNamedChild("Button Front").GetNamedChild("Text (TMP) ").GetComponent<TextMeshProUGUI>();
 
-        button.onClick.AddListener(() => {
-            if (recordROS == true) {
+        button.onClick.AddListener(() =>
+        {
+            if (recordROS == true)
+            {
                 recordROS = false;
                 buttonText.text = "Start Recording";
                 sendJointPositionMessage();
-            } else {
+            }
+            else
+            {
                 recordROS = true;
                 buttonText.text = "Send Recording";
             }
@@ -263,45 +317,70 @@ public class SetupUI : MonoBehaviour
         slider.value = knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value;
         sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
 
-        dropdown.onValueChanged.AddListener(delegate {
+        dropdown.onValueChanged.AddListener(delegate
+        {
             dropdownIndex = dropdown.value;
             slider.value = knobs[dropdown.value].GetComponentInParent<XRKnobAlt>().value;
         });
 
-        slider.onValueChanged.AddListener(delegate {
+        slider.onValueChanged.AddListener(delegate
+        {
             knobs[dropdownIndex].GetComponentInParent<XRKnobAlt>().value = slider.value;
             sliderText.text = knobs[dropdownIndex].transform.localRotation.eulerAngles.y.ToString();
         });
 
-        InvokeRepeating("addJointPosition", 1.0f, recordInterval); 
+        InvokeRepeating("addJointPosition", 1.0f, recordInterval);
     }
 
-    void addJointPosition() {
-        if (recordROS) {
-            if(recordStartTime == 0) {
+    void addJointPosition()
+    {
+        if (recordROS)
+        {
+            if (recordStartTime == 0)
+            {
                 recordStartTime = (int)Time.time;
             }
 
-            for (int i = 0; i < knobs.Count; i++) {
+            jointTorques = new List<double>();
+            for (int i = 0; i < knobs.Count; i++)
+            {
                 jointPositions[i] = knobs[i].transform.localRotation.eulerAngles.y;
+
+                // Get the torque from the knob
+                float torque = CalculateTorque(knobs[i]);
+                jointTorques.Add(torque);
             }
 
             JointTrajectoryPointMsg jointTrajectoryPoint = new JointTrajectoryPointMsg
             {
-                positions = jointPositions.ToArray(), 
+                positions = jointPositions.ToArray(),
+                effort = jointTorques.ToArray(),
                 time_from_start = new DurationMsg((int)Time.time - recordStartTime, 0),
             };
             jointTrajectoryPoints.Add(jointTrajectoryPoint);
         }
     }
 
-    void sendJointPositionMessage() {
+    float CalculateTorque(Transform knob)
+    {
+        float currentAngle = knob.transform.localEulerAngles.y;
+        float previousAngle = previousAngles[knob];
+        float deltaAngle = Mathf.DeltaAngle(previousAngle, currentAngle);
+        float angularVelocity = deltaAngle / Time.deltaTime;
+        float torque = momentsOfInertia[knob] * angularVelocity;
+        previousAngles[knob] = currentAngle;
+        return torque;
+    }
+
+    void sendJointPositionMessage()
+    {
         JointTrajectoryMsg jointTrajectory = new JointTrajectoryMsg();
 
         HeaderMsg header = new HeaderMsg
         {
             frame_id = gameObject.name,
-            stamp = new TimeMsg {
+            stamp = new TimeMsg
+            {
                 sec = (int)Time.time,
                 nanosec = (uint)((Time.time - (int)Time.time) * 1e9)
             }

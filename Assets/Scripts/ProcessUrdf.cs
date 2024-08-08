@@ -43,6 +43,8 @@ public class ProcessUrdf : MonoBehaviour
     private int jointCount = 0;
     private GameObject grabJoint;
 
+    private SetupUI setupUI;
+
     void Awake()
     {
         Debug.Log("ProcessUrdf Awake");
@@ -59,18 +61,18 @@ public class ProcessUrdf : MonoBehaviour
 
             Debug.Log("SetupUI Start");
             urdfModel.AddComponent<SetupUI>();
-            SetupUI ui = urdfModel.GetComponent<SetupUI>();
-            ui.ros = ros;
-            ui.trajTopicName = trajectoryTopic;
-            ui.queryTopicName = queryTopic;
-            ui.inputStateTopicName = mirrorInputTopic;
-            ui.outputStateTopicName = stateOutputTopic;
-            ui.knobs = knobs;
-            ui.jointPositions = jointPositions;
-            ui.jointNames = jointNames;
-            ui.robotUI = robotUI;
-            ui.queryUI = queryUI;
-            ui.mirrorUI = mirrorUI;
+            setupUI = urdfModel.GetComponent<SetupUI>();
+            setupUI.ros = ros;
+            setupUI.trajTopicName = trajectoryTopic;
+            setupUI.queryTopicName = queryTopic;
+            setupUI.inputStateTopicName = mirrorInputTopic;
+            setupUI.outputStateTopicName = stateOutputTopic;
+            setupUI.knobs = knobs;
+            setupUI.jointPositions = jointPositions;
+            setupUI.jointNames = jointNames;
+            setupUI.robotUI = robotUI;
+            setupUI.queryUI = queryUI;
+            setupUI.mirrorUI = mirrorUI;
             Debug.Log("SetupUI done");
 
             #if UNITY_EDITOR
@@ -151,7 +153,6 @@ public class ProcessUrdf : MonoBehaviour
             GameObject child = pair.Key;
             GameObject knobParent = pair.Value;
             jointNames.Add(child.name);
-            Debug.Log("Joint Name: " + child.name);
 
             knobParent.transform.position = child.transform.position;
             knobParent.transform.rotation = child.transform.rotation;
