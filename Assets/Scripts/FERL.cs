@@ -16,6 +16,7 @@ public class FERL : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ros = ROSConnection.GetOrCreateInstance();
         ros.Subscribe<BoolMsg>(feedbackRequestTopic, onRequestFeedback);
         ros.RegisterPublisher<BoolMsg>(feedbackResponseTopic);
         LoadPopupOptions();
