@@ -4,6 +4,7 @@ What is the purpose of this part of the project? Which assets and/or scripts are
 ## Checklist before requesting a review
 Fill in by placing an x between the brackets below.
 - [ ] I have performed a self-review of my code
+- [ ] I have merged the master branch into my branch so it is up to date
 - [ ] I have verified that the code will build and run
 - [ ] I have checked that my changes do not conflict with other team members' work
 - [ ] I have added or edited pages on the wiki to reflect these changes
