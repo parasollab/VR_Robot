@@ -56,7 +56,7 @@ Create a new mixed reality project using Unity's MR template.
 
 Drag the imported robot prefab into the Sample Scene, which can be found at `Assets/Scenes`.
 
-<img src="image/readme/1722651470122.png" alt="Drag the prefab" width="300" height="200"">
+<img src="image/readme/1722651470122.png" alt="Drag the prefab" width="300" height="200">
 
 Install the ROS-TCP-Connector package following the instructions at [Unity-Technologies/ROS-TCP-Connector](https://github.com/Unity-Technologies/ROS-TCP-Connector).
 
