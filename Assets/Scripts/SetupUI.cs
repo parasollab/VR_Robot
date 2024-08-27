@@ -53,14 +53,28 @@ public class SetupUI : MonoBehaviour
     {
         Debug.Log("SetupUI Start");
         if (ros == null) ros = ROSConnection.GetOrCreateInstance();
+
+        if (ros == null)
+        {
+            Debug.LogError("ROS Connection is null!");
+            return;
+        }
+
         ros.RegisterPublisher<JointQueryMsg>(queryTopicName);
         ros.RegisterPublisher<JointTrajectoryMsg>(trajTopicName);
         ros.RegisterPublisher<JointStateMsg>(outputStateTopicName);
         ros.Subscribe<JointStateMsg>(inputStateTopicName, MirrorStateCallback);
 
+        Debug.Log("starting UI");
+
         LoadQueryInterface();
+        Debug.Log("loaded query interface");
+
         LoadUI();
+        Debug.Log("loaded UI");
+
         LoadMirrorInterface();
+        Debug.Log("loaded mirror interface");
         
         InitializeKnobData();
     }
