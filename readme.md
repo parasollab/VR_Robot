@@ -2,7 +2,13 @@
 
 # Project Setup Instructions
 
-Clone the project and open it in Unity. All necessary packages should already be installed. The project was developed and tested for Unity Editor version 2022.3.37f1.
+Clone this project and then initialize and update the RADER Unity package which contains the bulk of the meaningful code:
+
+```bash
+git submodule update --init
+```
+
+The project was developed and tested for Unity Editor version 2022.3.37f1.
 
 ## Robot Setup Instructions
 
