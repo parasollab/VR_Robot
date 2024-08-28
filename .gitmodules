@@ -1,0 +1,3 @@
+[submodule "Packages/RADER"]
+	path = Packages/RADER
+	url = git@github.com:parasollab/RADER.git
