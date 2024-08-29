@@ -981,7 +981,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1.9204594e+31, y: 6e-44, z: 4e-45, w: 1.0053e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -1452,6 +1452,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7200652075733394645, guid: bd9c9e3c09b6a4b70a5227dcafab3183, type: 3}
+      propertyPath: menuUI
+      value: 
+      objectReference: {fileID: 3372437552170920940, guid: 52637c805be114fa2b970129d05ff0ac, type: 3}
     - target: {fileID: 7200652075733394645, guid: bd9c9e3c09b6a4b70a5227dcafab3183, type: 3}
       propertyPath: urdfModel
       value: 
