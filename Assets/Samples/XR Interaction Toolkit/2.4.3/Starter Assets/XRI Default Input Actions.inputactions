@@ -315,6 +315,24 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "PressY",
+                    "type": "Button",
+                    "id": "1cc63578-9ecf-4344-805b-0ded0ea3e6bc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PressX",
+                    "type": "Button",
+                    "id": "320fac49-050f-463b-8250-0b1797e09478",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Rotation",
                     "type": "Value",
                     "id": "cb6b7130-2bac-4ef7-abe4-6991ae7d419d",
@@ -614,6 +632,28 @@
                     "action": "Aim Flags",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e6f7104b-583f-4f2e-a9c9-b1897e41fcf4",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6062aa58-a24d-4cb2-b217-d63f0cf2c8b9",
+                    "path": "<XRController>{LeftHand}/{SecondaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -701,6 +741,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "PressX",
+                    "type": "Button",
+                    "id": "7d153542-4549-464c-b167-a4b697a1d11e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PressY",
+                    "type": "Button",
+                    "id": "79d2ed34-58ad-4047-9a24-c1d8be46fff8",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -844,6 +902,28 @@
                     "processors": "",
                     "groups": "Generic XR Controller",
                     "action": "UI Scroll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "564a338d-8e7f-49ac-854f-639888b89b31",
+                    "path": "<XRController>{LeftHand}/{SecondaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4f719e34-48b3-455b-8900-acb3e5cef124",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressX",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -1029,6 +1109,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "PressA",
+                    "type": "Button",
+                    "id": "0eadc957-b270-462e-ad7f-72bfe25dc4c9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PressB",
+                    "type": "Button",
+                    "id": "c9f1f2d9-1fe0-4e80-ae05-97fb0c910b14",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 },
                 {
                     "name": "Rotation",
@@ -1330,6 +1428,28 @@
                     "action": "Aim Flags",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "45216d94-2f0c-4646-a74e-ef732b7fb257",
+                    "path": "<XRController>{RightHand}/{SecondaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressB",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c9ff9da2-3879-4200-99eb-ba997b8e0aea",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressA",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -1417,6 +1537,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "PressA",
+                    "type": "Button",
+                    "id": "bed85a25-ea3b-4ecd-b2b9-175befa5e12f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PressB",
+                    "type": "Button",
+                    "id": "311042ec-87c9-47bb-9774-0b524ccaf6f3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1560,6 +1698,28 @@
                     "processors": "",
                     "groups": "Generic XR Controller",
                     "action": "UI Scroll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "606cb325-2864-49c7-b054-b662c70f95e7",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressA",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c9c16e54-3ca4-4fde-8d7b-ce7c3c00cd44",
+                    "path": "<XRController>{RightHand}/{SecondaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PressB",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
