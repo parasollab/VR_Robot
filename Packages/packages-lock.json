@@ -5,8 +5,6 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.robotics.ros-tcp-connector": "https://github.com/Unity-Technologies/ROS-TCP-Connector.git?path=/com.unity.robotics.ros-tcp-connector#v0.7.0",
-        "com.unity.robotics.urdf-importer": "https://github.com/Unity-Technologies/URDF-Importer.git?path=/com.unity.robotics.urdf-importer#v0.5.2",
         "com.unity.xr.interaction.toolkit": "2.5.4",
         "com.unity.xr.core-utils": "2.3.0",
         "com.unity.textmeshpro": "3.0.9"
