@@ -10,11 +10,11 @@ namespace Unity.VRTemplate
     /// </summary>
     public class RayAttachModifier : MonoBehaviour
     {
-        IXRSelectInteractable m_SelectInteractable;
+        UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable m_SelectInteractable;
 
         protected void OnEnable()
         {
-            m_SelectInteractable = GetComponent<IXRSelectInteractable>();
+            m_SelectInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable>();
             if (m_SelectInteractable as Object == null)
             {
                 Debug.LogError($"Ray Attach Modifier missing required Select Interactable on {name}", this);
@@ -32,7 +32,7 @@ namespace Unity.VRTemplate
 
         void OnSelectEntered(SelectEnterEventArgs args)
         {
-            if (!(args.interactorObject is XRRayInteractor))
+            if (!(args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor))
                 return;
 
             var attachTransform = args.interactorObject.GetAttachTransform(m_SelectInteractable);
