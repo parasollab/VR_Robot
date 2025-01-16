@@ -1,3 +1,6 @@
 [submodule "Packages/RADER"]
 	path = Packages/RADER
 	url = git@github.com:parasollab/RADER.git
+[submodule "Packages/URDF-Importer"]
+	path = Packages/URDF-Importer
+	url = git@github.com:parasollab/URDF-Importer.git
